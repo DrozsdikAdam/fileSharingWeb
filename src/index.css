@@ -4,6 +4,6 @@
 
 @layer utilities {
   .list-item {
-    @apply text-center hover:bg-gray-500/10 dark:hover:bg-gray-600 text-xl py-1 px-4 rounded-xl my-2;
+    @apply w-full text-center hover:bg-gray-500/10 dark:hover:bg-gray-600 text-xl py-2 rounded-md my-2 hover:border-2 hover:border-indigo-300 transition-all ease-in-out duration-100 dark:hover:text-white;
   }
 }

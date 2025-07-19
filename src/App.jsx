@@ -19,15 +19,16 @@ function App() {
         ) : (
           <div>
             <div
-              className="animate-pulse cursor-pointer text-center hover:bg-gray-500/10 dark:hover:bg-gray-600 text-2xl p-4 rounded-r-xl my-2  shadow-md shadow-gray-500 dark:shadow-gray-600 transition-all transition-discrete duration-200"
+              className="animate-pulse cursor-pointer text-center hover:bg-gray-500/50 dark:hover:bg-gray-600 text-2xl p-4 rounded-r-xl my-2 shadow-lg shadow-gray-500 dark:shadow-gray-600 transition-all transition-discrete duration-200 border-2 border-indigo-300"
               onClick={() => setIsOpen(true)}
             >
               <LuMenu />
             </div>
           </div>
         )}
-
-        <Outlet />
+        <div className="h-screen p-4">
+          <Outlet />
+        </div>
       </div>
     </>
   );
