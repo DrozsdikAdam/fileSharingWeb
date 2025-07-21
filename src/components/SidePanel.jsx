@@ -7,7 +7,11 @@ import { ThemeToggler } from "./ThemeToggler";
 
 export const SidePanel = ({ setIsOpen, theme, setTheme }) => {
   return (
-    <div className="h-screen p-4 flex flex-col items-center w-72">
+    <div
+      role="navigation"
+      area-label="Main Navigation"
+      className="h-screen p-4 flex flex-col items-center w-72"
+    >
       <div className="w-full text-right">
         <button
           className="cursor-pointer text-red-500 hover:scale-115 transition-all duration-200"
@@ -26,7 +30,6 @@ export const SidePanel = ({ setIsOpen, theme, setTheme }) => {
             </Link>
           </li>
           <li className="list-item">
-            {" "}
             <Link
               to={"/notes"}
               className="flex items-center justify-center gap-2"
