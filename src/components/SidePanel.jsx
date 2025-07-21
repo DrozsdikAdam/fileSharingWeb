@@ -37,7 +37,7 @@ export const SidePanel = ({ setIsOpen, theme, setTheme }) => {
           </li>
         </ul>
         <div>
-          <ThemeToggler setTheme={setTheme} />
+          <ThemeToggler theme={theme} setTheme={setTheme} />
         </div>
       </div>
     </div>
