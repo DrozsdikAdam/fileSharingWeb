@@ -26,7 +26,7 @@ function App() {
             </div>
           </div>
         )}
-        <div className="h-screen p-4">
+        <div className="h-screen w-full p-4 flex items-center justify-center">
           <Outlet />
         </div>
       </div>

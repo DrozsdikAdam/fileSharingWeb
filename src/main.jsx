@@ -6,6 +6,7 @@ import "./index.css";
 import App from "./App.jsx";
 import { HomePage } from "./pages/HomePage.jsx";
 import { AboutPage } from "./pages/AboutPage.jsx";
+import { SettingsPage } from "./pages/SettingsPage.jsx";
 
 const router = createBrowserRouter([
   {
@@ -22,7 +23,7 @@ const router = createBrowserRouter([
       },
       {
         path: "settings",
-        element: <div>Settings</div>,
+        element: <SettingsPage />,
       },
     ],
   },
