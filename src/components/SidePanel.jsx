@@ -6,7 +6,7 @@ import { MdNotes } from "react-icons/md";
 
 export const SidePanel = (props) => {
   return (
-    <div className="h-screen fixed p-4 flex flex-col items-center w-72">
+    <div className="h-screen p-4 flex flex-col items-center w-72">
       <div className="w-full text-right">
         <button
           className="cursor-pointer text-red-500 hover:scale-115 transition-all duration-200"
@@ -21,7 +21,7 @@ export const SidePanel = (props) => {
           <li className="list-item">
             <Link to="/" className="flex items-center justify-center gap-2">
               <FaHouse />
-              <span>Főoldal</span>
+              <span title="Főoldal">Főoldal</span>
             </Link>
           </li>
           <li className="list-item">
@@ -31,7 +31,7 @@ export const SidePanel = (props) => {
               className="flex items-center justify-center gap-2"
             >
               <MdNotes />
-              <span>Jegyzetek</span>
+              <span title="Jegyzetek">Jegyzetek</span>
             </Link>
           </li>
         </ul>
@@ -41,7 +41,7 @@ export const SidePanel = (props) => {
             className="flex items-center justify-center gap-2"
           >
             <FaGear className="hover:rotate-180 transition-all duration-300" />
-            <span>Beállítások</span>
+            <span title="Beállítások">Beállítások</span>
           </Link>
         </div>
       </div>

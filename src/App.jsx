@@ -26,7 +26,12 @@ function App() {
             </div>
           </div>
         )}
-        <div className="h-screen w-full p-4 flex items-center justify-center">
+
+        <div
+          className={`h-screen p-4 w-full  items-center justify-center ${
+            isOpen ? "hidden md:flex" : "flex"
+          }`}
+        >
           <Outlet />
         </div>
       </div>
