@@ -58,29 +58,34 @@ export function UploadPage() {
   };
 
   return (
-    <div className="h-full">
-      <div className="h-full flex items-center justify-center">
+    <div className="h-full flex items-center justify-center">
+      <div className="">
         {dataURL ? (
           <div className="selected">
-            <img src={dataURL} />
             <div className="actions">
               {uploadedURL ? (
                 <span className="uploaded-txt">Uploaded!</span>
               ) : (
-                <button onClick={uploadImage} className="upload-btn">
+                <button
+                  onClick={uploadImage}
+                  className="bg-green-600 text-white px-2 py-1 mx-4 text-lg rounded-md hover:scale-105 transisiton-all duration-200"
+                >
                   Upload
                 </button>
               )}
-              <button onClick={() => setDataURL(null)} className="cancel-btn">
+              <button
+                onClick={() => setDataURL(null)}
+                className="bg-red-500 text-white text-lg px-2 py-1 mx-4 rounded-md hover:scale-105 transisiton-all duration-200"
+              >
                 Cancel
               </button>
             </div>
           </div>
         ) : (
-          <div className="drop-zone" {...getRootProps()}>
+          <div {...getRootProps()}>
             <input {...getInputProps()} />
             {isDragActive ? (
-              <div className="w-75 h-75 border-2 rounded-md border-dashed border-white  flex items-center justify-center">
+              <div className="w-75 h-75 border-2 rounded-md border-dashed border-indigo-900 dark:border-indigo-300 flex items-center justify-center">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 24 24"
@@ -92,7 +97,7 @@ export function UploadPage() {
                 </svg>
               </div>
             ) : (
-              <div className="w-full h-full flex items-center justify-center">
+              <div className="w-75 h-75 flex items-center justify-center">
                 Drop your files here or click to browse
               </div>
             )}
@@ -101,7 +106,7 @@ export function UploadPage() {
       </div>
       {uploadedURL && (
         <a target="_blank" href={uploadedURL}>
-          <span className="uploaded-url">{uploadedURL}</span>
+          <span className="">{uploadedURL}</span>
         </a>
       )}
     </div>
