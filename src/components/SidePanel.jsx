@@ -1,6 +1,6 @@
 import { IoClose } from "react-icons/io5";
 import { Link } from "react-router-dom";
-import { FaGear } from "react-icons/fa6";
+import { IoCloudUploadSharp } from "react-icons/io5";
 import { FaHouse } from "react-icons/fa6";
 import { MdNotes } from "react-icons/md";
 import { ThemeToggler } from "./ThemeToggler";
@@ -24,18 +24,33 @@ export const SidePanel = ({ setIsOpen, theme, setTheme }) => {
       <div className="flex flex-col items-center justify-between h-full w-full">
         <ul className="flex flex-col items-center w-full">
           <li className="list-item">
-            <Link to="/" className="flex items-center justify-center gap-2">
+            <Link
+              to="/"
+              onClick={() => setIsOpen(false)}
+              className="flex items-center justify-center gap-2"
+            >
               <FaHouse />
               <span title="Főoldal">Főoldal</span>
             </Link>
           </li>
           <li className="list-item">
             <Link
+              onClick={() => setIsOpen(false)}
               to={"/notes"}
               className="flex items-center justify-center gap-2"
             >
               <MdNotes />
               <span title="Jegyzetek">Jegyzetek</span>
+            </Link>
+          </li>
+          <li className="list-item">
+            <Link
+              onClick={() => setIsOpen(false)}
+              to={"/upload"}
+              className="flex items-center justify-center gap-2"
+            >
+              <IoCloudUploadSharp />
+              <span title="Jegyzetek">Feltöltés</span>
             </Link>
           </li>
         </ul>
