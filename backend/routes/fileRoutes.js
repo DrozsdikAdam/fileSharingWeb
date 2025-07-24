@@ -5,7 +5,7 @@ const authMiddleware = require("../middleware/authMiddleware");
 const {
   uploadFile,
   listFile,
-  downloadFile,
+  getPresignedUrl,
   deleteFile,
 } = require("../controllers/fileController");
 
@@ -23,7 +23,7 @@ const upload = multer({ storage });
 
 router.post("/", upload.single("file"), uploadFile);
 router.get("/", listFile);
-router.get("/:filename", downloadFile);
+router.get("/:filename", getPresignedUrl);
 router.delete("/:filename", deleteFile);
 
 module.exports = router;
