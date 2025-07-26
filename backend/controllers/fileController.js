@@ -3,6 +3,7 @@ const path = require("path");
 const s3 = require("../utils/s3");
 const {
   PutObjectCommand,
+  GetObjectCommand,
   ListObjectsCommand,
   DeleteObjectCommand,
 } = require("@aws-sdk/client-s3");
@@ -39,7 +40,7 @@ exports.uploadFile = async (req, res) => {
 exports.listFiles = async (req, res) => {
   try {
     const result = await s3.send(new ListObjectsCommand({ Bucket: BUCKET }))
-    const files = result.Contents?.map(f => f.key) || []
+    const files = result.Contents?.map(f => f.Key) || []
     res.json(files)
   } catch (error) {
     console.log("Listázási hiba: ", error)

@@ -4,7 +4,7 @@ const path = require("path");
 const authMiddleware = require("../middleware/authMiddleware");
 const {
   uploadFile,
-  listFile,
+  listFiles,
   getPresignedUrl,
   deleteFile,
 } = require("../controllers/fileController");
@@ -14,15 +14,15 @@ router.use(authMiddleware);
 
 const storage = multer.diskStorage({
   destination: "uploads/",
-  filename: (req, res, cb) => {
-    cb(null, Date.now() + "-" + file.originalname);
+  filename: (req, file, cb) => {
+    cb(null, `${Date.now()}-${file.originalname}`);
   },
 });
 
 const upload = multer({ storage });
 
 router.post("/", upload.single("file"), uploadFile);
-router.get("/", listFile);
+router.get("/", listFiles);
 router.get("/:filename", getPresignedUrl);
 router.delete("/:filename", deleteFile);
 

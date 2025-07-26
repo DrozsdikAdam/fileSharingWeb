@@ -10,7 +10,7 @@ app.use(express.json());
 app.use("/uploads", express.static("uploads"));
 app.use("/api/auth", authRoutes);
 app.use("/api/notes", noteRoutes);
-app.use("api/files", fileRoutes);
+app.use("/api/files", fileRoutes);
 
 const PORT = process.env.PORT || 5000;
 

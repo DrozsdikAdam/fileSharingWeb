@@ -1,8 +1,8 @@
 const express = require("express");
 const {
   getNotes,
-  addNote,
-  deleteNote,
+  addNotes,
+  deleteNotes,
 } = require("../controllers/noteController");
 const authMiddleware = require("../middleware/authMiddleware");
 
