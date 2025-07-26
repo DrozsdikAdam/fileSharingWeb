@@ -7,9 +7,22 @@ export const useUser = () => useContext(userContext);
 export const UserProvider = ({ children }) => {
   const [user, setUser] = useState();
 
-  const login = (email, password) => {
-    const userObject = { email, password };
-    setUser(userObject);
+  const login = async (email, password) => {
+    const res = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: { "Content-type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+
+    const data = await res.json();
+
+    if (data.token) {
+      localStorage.setItem("token", data.token);
+      const userObject = { email, password };
+      setUser(userObject);
+    } else {
+      Alert("Hibás email vagy jelszó!");
+    }
   };
 
   const logout = () => {

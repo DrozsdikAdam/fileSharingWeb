@@ -1,23 +1,20 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-
-const Users = [];
-
-exports.register = async (req, res) => {
-  const { email, password } = req.body;
-  const hashed = await bcrypt.hash(password, 10);
-  Users.push({ email, password: hashed });
-  res.json({ message: "Sikeres regisztráció!" });
-};
+require("dotenv").config()
 
 exports.login = async (req, res) => {
   const { email, password } = req.body;
-  const user = Users.find((u) => u.email === email);
-  if (!user) return res.status(404).json({ error: "Nincs ilyen felhasználó!" });
 
-  const match = await bcrypt.compare(password, user.password);
-  if (!match) return res.status(401).json({ error: "Hibás jelszó!" });
+  try {
+    if (!email === process.env.EMAIL) return res.status(404).json({ error: "Nincs ilyen felhasználó!" });
 
-  const token = jwt.sign({ email }, "titkosítókulcs", { expiresIn: "1d" });
-  res.json({ token });
+    const match = await bcrypt.compare(password, process.env.HASHED_PASSWORD);
+    if (!match) return res.status(401).json({ error: "Hibás jelszó!" });
+
+    const token = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: "1d" });
+    res.json({ token });
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ error: "Sikertelen bejelentkezés!" })
+  }
 };

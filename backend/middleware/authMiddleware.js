@@ -1,13 +1,19 @@
 const jwt = require("jsonwebtoken");
+require("dotenv").config()
 
-module.exports = (req, res, next) => {
+const verifyToken = (req, res, next) => {
   const authHeader = req.headers.authorization;
-  if (!authHeader) return res.sendStatus(401);
+  if (!authHeader) return res.sendStatus(401).json({ error: 'Hiányzik a token' });
 
   const token = authHeader.split(" ")[1];
-  jwt.verify(token, "titkoskulcs", (err, user) => {
-    if (err) return res.sendStatus(403);
-    req.user = user;
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET)
+    req.user = decoded;
     next();
-  });
+  } catch (error) {
+    return res.sendStatus(403).json({ error: "Érvénytelen token!" });
+  }
 };
+
+module.exports = verifyToken

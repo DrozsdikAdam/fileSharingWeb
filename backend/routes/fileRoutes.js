@@ -1,7 +1,7 @@
 const express = require("express");
 const multer = require("multer");
 const path = require("path");
-const authMiddleware = require("../middleware/authMiddleware");
+const verifyToken = require("../middleware/authMiddleware");
 const {
   uploadFile,
   listFiles,
@@ -10,7 +10,7 @@ const {
 } = require("../controllers/fileController");
 
 const router = express.Router();
-router.use(authMiddleware);
+router.use(verifyToken);
 
 const storage = multer.diskStorage({
   destination: "uploads/",
@@ -21,9 +21,9 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-router.post("/", upload.single("file"), uploadFile);
-router.get("/", listFiles);
-router.get("/:filename", getPresignedUrl);
-router.delete("/:filename", deleteFile);
+router.post('/upload', verifyToken, upload.single('file'), uploadFile);
+router.get('/', verifyToken, listFiles);
+router.get('/download/:filename', verifyToken, getPresignedUrl);
+router.delete('/:filename', verifyToken, deleteFile);
 
 module.exports = router;
