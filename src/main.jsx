@@ -5,7 +5,7 @@ import "./index.css";
 
 import App from "./App.jsx";
 import { HomePage } from "./pages/HomePage.jsx";
-import { AboutPage } from "./pages/AboutPage.jsx";
+import { NotesPage } from "./pages/NotesPage.jsx";
 import { UploadPage } from "./pages/UploadPage.jsx";
 import { LoginPage } from "./pages/LoginPage.jsx";
 import { MainLayout } from "./layouts/MainLayout.jsx";
@@ -25,7 +25,7 @@ const router = createBrowserRouter([
           },
           {
             path: "notes",
-            element: <AboutPage />,
+            element: <NotesPage />,
           },
           {
             path: "upload",
