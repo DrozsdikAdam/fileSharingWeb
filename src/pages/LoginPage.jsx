@@ -60,7 +60,11 @@ export const LoginPage = () => {
       </div>
       <div className="px-6">
         <form>
-          <div className="flex items-center justify-between flex-col px-3 py-3">
+          <div
+            className={`flex items-center justify-between flex-col px-3 ${
+              emailError === "" ? "py-3" : "pt-3 py-0"
+            } `}
+          >
             <div className="flex items-center justify-between gap-8">
               <label htmlFor="email" className="font-semibold text-lg">
                 Email:
@@ -84,7 +88,11 @@ export const LoginPage = () => {
             )}
           </div>
 
-          <div className="flex items-center justify-between flex-col px-3 pt-3 pb-6">
+          <div
+            className={`flex items-center justify-between flex-col px-3 pt-3 ${
+              passwordError === "" ? "pb-6" : "pb-3"
+            }`}
+          >
             <div className="flex items-center justify-between gap-8">
               <label htmlFor="password" className="font-semibold text-lg">
                 Jelszó:

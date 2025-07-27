@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 
 const userContext = createContext(null);
 
@@ -18,7 +18,7 @@ export const UserProvider = ({ children }) => {
 
     if (data.token) {
       localStorage.setItem("token", data.token);
-      setUser(email);
+      setUser(data.token);
     } else {
       alert("Hibás email vagy jelszó!");
     }
@@ -29,6 +29,13 @@ export const UserProvider = ({ children }) => {
     localStorage.removeItem("token");
     setUser(null);
   };
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      setUser(token);
+    }
+  }, []);
 
   return (
     <userContext.Provider value={{ user, login, logout }}>
