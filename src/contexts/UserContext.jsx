@@ -18,9 +18,7 @@ export const UserProvider = ({ children }) => {
 
     if (data.token) {
       localStorage.setItem("token", data.token);
-      const useremail = email;
-      setUser(useremail);
-      alert("sikeres");
+      setUser(email);
     } else {
       alert("Hibás email vagy jelszó!");
     }

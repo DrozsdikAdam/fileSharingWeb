@@ -19,7 +19,7 @@ export const LoginPage = () => {
   };
 
   const validatePassword = (password) => {
-    //regex 8 betű 1 nagy 1 kicsi 1 szám 1 speciális karakter
+    //regex: 8 karakter, 1 nagybetű, 1 kisbetű, 1 szám, 1 speciális karakter
     const passwRegex =
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
     return passwRegex.test(password);

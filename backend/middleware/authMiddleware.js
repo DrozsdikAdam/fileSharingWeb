@@ -3,7 +3,7 @@ require("dotenv").config()
 
 const verifyToken = (req, res, next) => {
   const authHeader = req.headers.authorization;
-  if (!authHeader) return res.sendStatus(401).json({ error: 'Hiányzik a token' });
+  if (!authHeader) return res.status(401).json({ error: 'Hiányzik a token' });
 
   const token = authHeader.split(" ")[1];
 
@@ -12,7 +12,7 @@ const verifyToken = (req, res, next) => {
     req.user = decoded;
     next();
   } catch (error) {
-    return res.sendStatus(403).json({ error: "Érvénytelen token!" });
+    return res.status(403).json({ error: "Érvénytelen token!" });
   }
 };
 
