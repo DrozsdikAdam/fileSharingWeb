@@ -1,5 +1,7 @@
 const express = require("express");
 const cors = require("cors");
+require("dotenv").config(); // .env fájl betöltése a legelején
+
 const authRoutes = require("./routes/authRoutes");
 const noteRoutes = require("./routes/noteRoutes");
 const fileRoutes = require("./routes/fileRoutes");

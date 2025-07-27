@@ -8,7 +8,7 @@ export const UserProvider = ({ children }) => {
   const [user, setUser] = useState();
 
   const login = async (email, password) => {
-    const res = await fetch("/api/auth/login", {
+    const res = await fetch("http://localhost:5000/api/auth/login", {
       method: "POST",
       headers: { "Content-type": "application/json" },
       body: JSON.stringify({ email, password }),
@@ -18,14 +18,17 @@ export const UserProvider = ({ children }) => {
 
     if (data.token) {
       localStorage.setItem("token", data.token);
-      const userObject = { email, password };
-      setUser(userObject);
+      const useremail = email;
+      setUser(useremail);
+      alert("sikeres");
     } else {
-      Alert("Hibás email vagy jelszó!");
+      alert("Hibás email vagy jelszó!");
     }
   };
 
   const logout = () => {
+    alert("Sikeres kijelentkezés!");
+    localStorage.removeItem("token");
     setUser(null);
   };
 
