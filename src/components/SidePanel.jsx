@@ -4,6 +4,7 @@ import { IoCloudUploadSharp } from "react-icons/io5";
 import { FaHouse } from "react-icons/fa6";
 import { MdNotes } from "react-icons/md";
 import { ThemeToggler } from "./ThemeToggler";
+import { LoginButton } from "./LoginButton";
 
 export const SidePanel = ({ setIsOpen, theme, setTheme }) => {
   return (
@@ -55,6 +56,7 @@ export const SidePanel = ({ setIsOpen, theme, setTheme }) => {
           </li>
         </ul>
         <div>
+          <LoginButton />
           <ThemeToggler theme={theme} setTheme={setTheme} />
         </div>
       </div>
