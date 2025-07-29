@@ -11,8 +11,8 @@ exports.addNotes = (req, res) => {
     id: Date.now().toString(),
     content,
     user: req.user.email,
-    createdAt: new Date().toISOString(),
-    active: true
+    createdAt: new Date().toLocaleString(),
+    active: true,
   };
   notes.push(newNote);
   res.status(201).json(newNote);

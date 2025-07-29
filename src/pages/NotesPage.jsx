@@ -19,6 +19,7 @@ export const NotesPage = () => {
       },
     });
     const data = await res.json();
+    console.log(data);
     setNotes(data);
   };
 
@@ -36,6 +37,7 @@ export const NotesPage = () => {
   const completedNote = (index) => {
     var arr = [...notes];
     arr[index].active = !arr[index].active;
+    console.log(arr);
     setNotes(arr);
   };
 
@@ -49,7 +51,8 @@ export const NotesPage = () => {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({ note: text }),
+      body: JSON.stringify({ content: text }),
+      //fontos a content elnevezés mert az van a backendben is
     });
 
     if (res.ok) fetchNotes();
@@ -59,7 +62,7 @@ export const NotesPage = () => {
 
   useEffect(() => {
     fetchNotes();
-  }, []);
+  }, [user]);
 
   return (
     <div>
@@ -102,23 +105,23 @@ export const NotesPage = () => {
                   className="grid mb-2 grid-cols-4 lg:grid-cols-5 gap-1 hover:bg-gray-500/10 dark:hover:bg-gray-600/50 p-2 w-full border-b-2 border-indigo-900 dark:border-indigo-300 shadow-lg dark:hover:shadow-indigo-300/30 hover:shadow-indigo-900/30"
                 >
                   <div
-                    onClick={() => completedNote(index)}
+                    onClick={() => completedNote(note.id)}
                     className={`lg:col-span-4 col-span-3 ${
                       note.active ? null : "line-through"
                     }`}
                   >
-                    {note.note}
+                    {note.content}
                   </div>
 
                   <div className="col-span-1 text-right flex justify-around items-center">
                     <div className="flex h-full items-end">
                       <span className="text-sm text-gray-600/80 dark:text-gray-400">
-                        {note.time}
+                        {note.createdAt}
                       </span>
                     </div>
 
                     <button
-                      onClick={() => handleDelete(index)}
+                      onClick={() => handleDelete(note.id)}
                       className="hover:scale-110"
                     >
                       <IoClose size={30} color="red" />
