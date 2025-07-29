@@ -9,44 +9,28 @@ export const NotesPage = () => {
   const textRef = useRef();
   const token = localStorage.getItem("token");
 
-  const [notes, setNotes] = useState([
-    {
-      note: "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Nobis, voluptates!",
-      time: "2025.02.17 14:57",
-      active: true,
-    },
-    {
-      note: "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Nobis, voluptates!  Lorem ipsum dolor, sit amet consectetur adipisicing elit. Nobis, voluptates!",
-      time: "2025.02.17 14:57",
-      active: true,
-    },
-    {
-      note: "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Nobis, voluptates!",
-      time: "2025.02.17 14:57",
-      active: true,
-    },
-    {
-      note: "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Nobis, voluptates!",
-      time: "2025.02.17 14:57",
-      active: true,
-    },
-  ]);
+  const [notes, setNotes] = useState([]);
 
   const fetchNotes = async () => {
     if (!user) return;
-    const res = await fetch("/api/notes", {
+    const res = await fetch("http://localhost:5000/api/notes", {
       headers: {
-        Authorization: `Bearer: ${token}`,
+        Authorization: `Bearer ${token}`,
       },
     });
     const data = await res.json();
     setNotes(data);
   };
 
-  const handleDelete = (index) => {
-    var arr = [...notes];
-    arr.splice(index, 1);
-    setNotes(arr);
+  const handleDelete = async (index) => {
+    const res = await fetch(`http://localhost:5000/api/notes/${index}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (res.ok) setNotes(notes.filter((note) => note.id !== index));
   };
 
   const completedNote = (index) => {
@@ -55,16 +39,21 @@ export const NotesPage = () => {
     setNotes(arr);
   };
 
-  const newNote = () => {
+  const newNote = async () => {
     let text = textRef.current.value.trim();
     if (text.length === 0) return;
-    var arr = [...notes];
-    arr.push({
-      note: text,
-      time: new Date().toLocaleString(),
-      active: true,
+
+    const res = await fetch("http://localhost:5000/api/notes", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ note: text }),
     });
-    setNotes(arr);
+
+    if (res.ok) fetchNotes();
+    textRef.current.value = "";
     setIsOpen(!isOpen);
   };
 
