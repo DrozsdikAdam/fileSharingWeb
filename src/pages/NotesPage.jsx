@@ -34,10 +34,11 @@ export const NotesPage = () => {
     if (res.ok) setNotes(notes.filter((note) => note.id !== index));
   };
 
-  const completedNote = (index) => {
-    var arr = [...notes];
-    arr[index].active = !arr[index].active;
-    console.log(arr);
+  const completedNote = (id) => {
+    const arr = notes.map((note) =>
+      note.id === id ? { ...note, active: !note.active } : note
+    );
+
     setNotes(arr);
   };
 
@@ -62,6 +63,7 @@ export const NotesPage = () => {
 
   useEffect(() => {
     fetchNotes();
+    console.log(notes);
   }, [user]);
 
   return (
