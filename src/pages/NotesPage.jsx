@@ -7,6 +7,7 @@ export const NotesPage = () => {
   const { user } = useUser();
   const [isOpen, setIsOpen] = useState(false);
   const textRef = useRef();
+  const token = localStorage.getItem("token");
 
   const [notes, setNotes] = useState([
     {
@@ -31,6 +32,17 @@ export const NotesPage = () => {
     },
   ]);
 
+  const fetchNotes = async () => {
+    if (!user) return;
+    const res = await fetch("/api/notes", {
+      headers: {
+        Authorization: `Bearer: ${token}`,
+      },
+    });
+    const data = await res.json();
+    setNotes(data);
+  };
+
   const handleDelete = (index) => {
     var arr = [...notes];
     arr.splice(index, 1);
@@ -44,11 +56,11 @@ export const NotesPage = () => {
   };
 
   const newNote = () => {
-    let text = textRef.current.value;
-    if (text.trim().length === 0) return;
+    let text = textRef.current.value.trim();
+    if (text.length === 0) return;
     var arr = [...notes];
     arr.push({
-      note: textRef.current.value,
+      note: text,
       time: new Date().toLocaleString(),
       active: true,
     });
@@ -56,7 +68,9 @@ export const NotesPage = () => {
     setIsOpen(!isOpen);
   };
 
-  useEffect(() => {}, []);
+  useEffect(() => {
+    fetchNotes();
+  }, []);
 
   return (
     <div>
