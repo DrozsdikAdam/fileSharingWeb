@@ -34,12 +34,20 @@ export const NotesPage = () => {
     if (res.ok) setNotes(notes.filter((note) => note.id !== index));
   };
 
-  const completedNote = (id) => {
-    const arr = notes.map((note) =>
-      note.id === id ? { ...note, active: !note.active } : note
-    );
+  const completedNote = async (id) => {
+    const active = !notes.find((n) => n.id === id).active;
+    console.log(token);
+    console.log(active);
+    const res = await fetch(`http://localhost:5000/api/notes/${id}/active`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer: ${token}`,
+      },
+      body: JSON.stringify({ active }),
+    });
 
-    setNotes(arr);
+    if (res.ok) fetchNotes();
   };
 
   const newNote = async () => {
