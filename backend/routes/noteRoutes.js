@@ -3,15 +3,17 @@ const {
   getNotes,
   addNotes,
   deleteNotes,
+  toggleActive
 } = require("../controllers/noteController");
-const authMiddleware = require("../middleware/authMiddleware");
+const verifyToken = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
-router.use(authMiddleware);
+router.use(verifyToken);
 
-router.get("/", getNotes);
-router.post("/", addNotes);
-router.delete("/:id", deleteNotes);
+router.get("/", verifyToken, getNotes);
+router.patch("/:id/active", verifyToken, toggleActive)
+router.post("/", verifyToken, addNotes);
+router.delete("/:id", verifyToken, deleteNotes);
 
 module.exports = router;

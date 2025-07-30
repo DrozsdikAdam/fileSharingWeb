@@ -5,15 +5,30 @@ exports.getNotes = (req, res) => {
   res.json(userNotes);
 };
 
+exports.toggleActive = (req, res) => {
+  const { id } = req.params
+  const note = notes.find((n) => String(n.id) === String(id));
+  if (!note) {
+    return res.status(404).json({ error: "Jegyzet nem található" });
+  }
+
+  note.active = !note.active;
+
+  res.status(200).json(note);
+}
+
 exports.addNotes = (req, res) => {
   const { content } = req.body;
   const newNote = {
     id: Date.now().toString(),
     content,
     user: req.user.email,
-    createdAt: new Date().toISOString()
+    createdAt: new Date().toLocaleString('hu-HU', { timeZone: 'Europe/Budapest' }),
+    active: true,
   };
+
   notes.push(newNote);
+  console.log(newNote)
   res.status(201).json(newNote);
 };
 
