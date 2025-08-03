@@ -1,5 +1,3 @@
-const fs = require("fs");
-const path = require("path");
 const s3 = require("../utils/s3");
 const {
   PutObjectCommand,
@@ -12,24 +10,46 @@ require("dotenv").config();
 
 const BUCKET = process.env.BUCKET;
 
+// Segédfüggvény a fájlnevek "megtisztítására" az S3 kulcsokhoz.
+// Eltávolítja az ékezeteket és a nem biztonságos karaktereket.
+const sanitizeFilenameForS3 = (filename) => {
+  // 1. Ékezetes karakterek felbontása alap karakterre és ékezetre (pl. "ű" -> "u" + " ̋").
+  const normalized = filename.normalize('NFD');
+
+  // 2. Az ékezetek eltávolítása.
+  const withoutAccents = normalized.replace(/[\u0300-\u036f]/g, '');
+
+  // 3. Minden, ami nem betű, szám, pont, kötőjel vagy aláhúzás, cseréje aláhúzásra.
+  return withoutAccents.replace(/[^a-zA-Z0-9.\-_]/g, '_');
+};
+
 exports.uploadFile = async (req, res) => {
   try {
-    const fileContent = fs.readFileSync(req.file.path);
+    // A böngésző UTF-8 kódolással küldi a fájlnevet, de a multer/busboy latin1-ként értelmezheti.
+    // Ezt a hibát korrigáljuk a string bájtjainak helyes (UTF-8) újraértelmezésével.
+    const originalNameDecoded = Buffer.from(
+      req.file.originalname,
+      "latin1"
+    ).toString("utf8");
+
+
+    const sanitizedOriginalName = sanitizeFilenameForS3(originalNameDecoded);
+    const s3Key = `${Date.now()}-${sanitizedOriginalName}`;
     await s3.send(
       new PutObjectCommand({
         Bucket: BUCKET,
-        Key: req.file.filename,
-        Body: fileContent,
+        Key: s3Key,
+        Body: req.file.buffer,
         ContentType: req.file.mimetype,
       })
     );
-    fs.unlinkSync(req.file.path);
 
     res
       .status(201)
       .json({
         message: "Fájl sikeresen feltöltve!",
-        filename: req.file.filename,
+        filename: s3Key,
+        originalName: originalNameDecoded,
       });
   } catch (err) {
     console.log("Feltöltési hiba: ", err);

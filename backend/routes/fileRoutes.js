@@ -12,18 +12,12 @@ const {
 const router = express.Router();
 router.use(verifyToken);
 
-const storage = multer.diskStorage({
-  destination: "uploads/",
-  filename: (req, file, cb) => {
-    cb(null, `${Date.now()}-${file.originalname}`);
-  },
-});
+// Váltás memoryStorage-re a hatékonyabb S3 feltöltés érdekében
+const upload = multer({ storage: multer.memoryStorage() });
 
-const upload = multer({ storage });
-
-router.post('/upload', verifyToken, upload.single('file'), uploadFile);
-router.get('/', verifyToken, listFiles);
-router.get('/download/:filename', verifyToken, getPresignedUrl);
-router.delete('/:filename', verifyToken, deleteFile);
+router.post('/upload', upload.single('file'), uploadFile);
+router.get('/', listFiles);
+router.get('/download/:filename', getPresignedUrl);
+router.delete('/:filename', deleteFile);
 
 module.exports = router;
