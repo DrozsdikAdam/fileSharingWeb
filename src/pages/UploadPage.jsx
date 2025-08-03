@@ -1,16 +1,14 @@
 import { useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { useNavigate } from "react-router-dom";
-import { PiSpinnerGapLight } from "react-icons/pi";
 import { ImSpinner9 } from "react-icons/im";
-import { ImSpinner } from "react-icons/im";
 
 export function UploadPage() {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
 
   if (!token) navigate("/login");
-  const [uploading, setUploading] = useState(true);
+  const [uploading, setUploading] = useState(false);
   const [uploadedFiles, setUploadFiles] = useState([]);
   const [error, setError] = useState(null);
 
@@ -94,12 +92,7 @@ export function UploadPage() {
         </div>
         {uploading && (
           <div className="flex">
-            <PiSpinnerGapLight
-              size={45}
-              className="transition-all animate-spin"
-            />
-            <ImSpinner9 size={45} className="transition-all animate-spin" />
-            <ImSpinner size={45} className="transition-all animate-spin" />
+            <ImSpinner9 size={50} className="transition-all animate-spin" />
           </div>
         )}
         {error && <p className="mt-4 text-red-600">{error}</p>}
