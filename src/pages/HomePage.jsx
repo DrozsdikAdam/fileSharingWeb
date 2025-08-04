@@ -12,9 +12,10 @@ import {
   TbFileTypePdf,
 } from "react-icons/tb";
 import { BsFiletypeM4P } from "react-icons/bs";
+import { useMemo } from "react";
 
 export const HomePage = () => {
-  const files = [
+  const initialFiles = [
     "asd.txt",
     "asd.docx",
     "asd.pptx",
@@ -24,31 +25,62 @@ export const HomePage = () => {
     "asd.css.html.go.jsx.tsx.js.cs,cpp.c.asm.json",
     "asd.mp3",
     "asd.zip",
-    "asd",
+    "asd.ppt",
     "asd",
     "asd",
   ];
 
-  //<FaFolder /> folder icon
-
-  // <TbFileTypeDocx /> word
-  // <TbFileTypeTxt /> txt
-  // <TbFileTypePpt /> ppt
-  // <TbFileTypeJpg /> img
-  // <TbFileTypePdf /> pdf
-  // <TbFileMusic /> hang
-  // <BsFiletypeM4P /> video
-  // <TbFileCode /> code
-  // <TbFileTypeZip /> zip
-
-  // <TbFileDownload /> download
-  // <TbTrash /> trash
+  const files = useMemo(() => {
+    // A [...initialFiles] egy másolatot készít a tömbről, hogy az eredeti ne módosuljon.
+    // A rendezés így a rövidebb nevűeket (kevesebb pontot tartalmazókat) teszi előre.
+    return [...initialFiles].sort(
+      (a, b) => a.split(".").length - b.split(".").length
+    );
+  }, []);
 
   const handleDownload = (index) => {
-    alert("download", index);
+    alert(`download ${index}`);
   };
   const handleDelete = (index) => {
-    alert("delete", index);
+    alert(`delete ${index}`);
+  };
+
+  const selectIcons = (file) => {
+    const extension = file.split(".")[file.split(".").length - 1];
+    const parts = file.split(".");
+    if (parts.length === 1) return <FaFolder size={50} className="my-2" />;
+
+    switch (extension) {
+      case "txt":
+        return <TbFileTypeTxt size={50} className="my-2" />;
+      case "docx":
+        return <TbFileTypeDocx size={50} className="my-2" />;
+      case "ppt":
+      case "pptx":
+        return <TbFileTypePpt size={50} className="my-2" />;
+      case "pdf":
+        return <TbFileTypePdf size={50} className="my-2" />;
+      case "zip":
+        return <TbFileTypeZip size={50} className="my-2" />;
+      case "jpg":
+      case "jpeg":
+      case "png":
+      case "gif":
+      case "bmp":
+      case "tiff":
+      case "svg":
+        return <TbFileTypeJpg size={50} className="my-2" />;
+      case "mp4":
+      case "avi":
+      case "mkv":
+        return <BsFiletypeM4P size={50} className="my-2" />;
+      case "mp3":
+      case "wav":
+      case "ogg":
+        return <TbFileMusic size={50} className="my-2" />;
+      default:
+        return <TbFileCode size={50} className="my-2" />;
+    }
   };
 
   return (
@@ -63,7 +95,7 @@ export const HomePage = () => {
             className="border-2 border-amber-500 overflow-hidden rounded-lg flex justify-center flex-col bg-indigo-900/30"
           >
             <div className="flex items-center justify-center w-full p-1">
-              <FaFolder size={50} className="my-2" />
+              {selectIcons(file)}
             </div>
             <div className="p-1 text-gray-300" title={file}>
               {file}
