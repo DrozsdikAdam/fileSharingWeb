@@ -15,6 +15,8 @@ import { BsFiletypeM4P } from "react-icons/bs";
 import { useMemo } from "react";
 
 export const HomePage = () => {
+  const token = localStorage.getItem("token");
+
   const initialFiles = [
     "asd.txt",
     "asd.docx",
@@ -22,7 +24,7 @@ export const HomePage = () => {
     "asd.pdf",
     "asd.jpg",
     "asd.mp4",
-    "asd.css.html.go.jsx.tsx.js.cs,cpp.c.asm.json",
+    "asd.css",
     "asd.mp3",
     "asd.zip",
     "asd.ppt",
@@ -85,35 +87,39 @@ export const HomePage = () => {
 
   return (
     <div className="w-full h-full flex flex-col items-center overflow-auto">
-      <h1 className="text-xl md:text-2xl font-semibold text-center">
+      <h1 className="text-xl md:text-2xl lg:text-3xl font-semibold text-center">
         Feltöltött fájlok
       </h1>
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4 w-full p-4">
-        {files.map((file, index) => (
-          <div
-            key={index}
-            className="border-2 border-amber-500 overflow-hidden rounded-lg flex justify-center flex-col bg-indigo-900/30"
-          >
-            <div className="flex items-center justify-center w-full p-1">
-              {selectIcons(file)}
+      <p className="w-full px-4 text-lg">/root</p>
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-5 w-full p-4">
+        {token &&
+          files.map((file, index) => (
+            <div
+              key={index}
+              className="shadow-md shadow-indigo-800 hover:scale-105 hover:shadow-indigo-700 hover:shadow-lg transition-all overflow-hidden rounded-lg flex justify-center flex-col p-0.5 dark:bg-indigo-900/30"
+            >
+              <div className="flex items-center justify-center w-full p-1 hover:animate-pulse">
+                {selectIcons(file)}
+              </div>
+              <div className="p-1" title={file}>
+                {file}
+              </div>
+              {file.split(".").length === 1 ? null : (
+                <div className="flex justify-around w-full p-1.5">
+                  <TbFileDownload
+                    size={25}
+                    onClick={() => handleDownload(index)}
+                    className="mr-1.5 hover:text-blue-500/90 hover:scale-105 transition-all"
+                  />
+                  <TbTrash
+                    size={25}
+                    onClick={() => handleDelete(index)}
+                    className="hover:text-red-500/90 hover:scale-105 transition-all"
+                  />
+                </div>
+              )}
             </div>
-            <div className="p-1 text-gray-300" title={file}>
-              {file}
-            </div>
-            <div className="flex justify-around w-full p-1.5">
-              <TbFileDownload
-                size={25}
-                onClick={() => handleDownload(index)}
-                className="mr-1.5 hover:text-blue-500/90 hover:scale-105 transition-all"
-              />
-              <TbTrash
-                size={25}
-                onClick={() => handleDelete(index)}
-                className="hover:text-red-500/90 hover:scale-105 transition-all"
-              />
-            </div>
-          </div>
-        ))}
+          ))}
       </div>
     </div>
   );
