@@ -85,18 +85,24 @@ export const HomePage = () => {
     }
   };
 
+  const openFolder = (file) => {
+    alert(`opening folder: ${file}`);
+  };
+
   return (
     <div className="w-full h-full flex flex-col items-center overflow-auto">
       <h1 className="text-xl md:text-2xl lg:text-3xl font-semibold text-center">
         Feltöltött fájlok
       </h1>
-      <p className="w-full px-4 text-lg">/root</p>
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-5 w-full p-4">
         {token &&
           files.map((file, index) => (
             <div
               key={index}
-              className="shadow-md shadow-indigo-800 hover:scale-105 hover:shadow-indigo-700 hover:shadow-lg transition-all overflow-hidden rounded-lg flex justify-center flex-col p-0.5 dark:bg-indigo-900/30"
+              className="shadow-md shadow-indigo-800 hover:scale-105 hover:shadow-indigo-700 border-2 border-purple-700 hover:shadow-lg transition-all overflow-hidden rounded-lg flex justify-center flex-col p-0.5 dark:bg-indigo-900/30"
+              {...(file.split(".").length === 1
+                ? { onDoubleClick: () => openFolder(file) }
+                : null)}
             >
               <div className="flex items-center justify-center w-full p-1 hover:animate-pulse">
                 {selectIcons(file)}
