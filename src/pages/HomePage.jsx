@@ -75,11 +75,25 @@ export const HomePage = () => {
     alert(`download ${index}`);
   };
 
-  const handleDelete = (index) => {
+  const handleDelete = async (file) => {
     ToastButtons(
-      () => alert(`delete ${index}`),
+      () => deleteFile(file),
       () => alert(`törlés megszakítva`)
     );
+  };
+
+  const deleteFile = async (file) => {
+    try {
+      const res = await fetch(`http://localhost:5000/api/files/${file}`, {
+        method: "DELETE",
+        headers: {
+          authorization: `Bearer ${token}`,
+        },
+      });
+      if (res.ok) setInitialFiles(initialFiles.filter((f) => f !== file));
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const files = useMemo(() => {
@@ -140,21 +154,21 @@ export const HomePage = () => {
                 <div className="flex items-center justify-center w-full p-1 hover:animate-pulse">
                   {selectIcons(file)}
                 </div>
-                <div className="p-1" title={file}>
-                  {file}
+                <div className="p-1 overflow-hidden" title={file}>
+                  {file.split("@&|")[1]}
                 </div>
                 {file.split(".").length === 1 ? null : (
                   <div className="flex justify-around w-full p-1.5">
                     <TbFileDownload
                       title="Letöltés"
                       size={25}
-                      onClick={() => handleDownload(index)}
+                      onClick={() => handleDownload(file)}
                       className="mr-1.5 hover:text-blue-500/90 hover:scale-105 transition-all"
                     />
                     <TbTrash
                       title="Törtés"
                       size={25}
-                      onClick={() => handleDelete(index)}
+                      onClick={() => handleDelete(file)}
                       className="hover:text-red-500/90 hover:scale-105 transition-all"
                     />
                   </div>
