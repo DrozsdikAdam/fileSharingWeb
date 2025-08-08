@@ -15,6 +15,7 @@ import { BsFiletypeM4P } from "react-icons/bs";
 import { useEffect, useMemo, useState } from "react";
 import { ImSpinner9 } from "react-icons/im";
 import { useNavigate } from "react-router-dom";
+import { ToastButtons } from "../components/ToastWithButtons";
 
 export const HomePage = () => {
   const token = localStorage.getItem("token");
@@ -22,20 +23,6 @@ export const HomePage = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   const [initialFiles, setInitialFiles] = useState([]);
-
-  const files = useMemo(() => {
-    // A rendezés a mappákat (feltételezve, hogy nincs bennük pont) előre helyezi.
-    return [...initialFiles].sort(
-      (a, b) => a.split(".").length - b.split(".").length
-    );
-  }, [initialFiles]);
-
-  const handleDownload = (index) => {
-    alert(`download ${index}`);
-  };
-  const handleDelete = (index) => {
-    alert(`delete ${index}`);
-  };
 
   const selectIcons = (file) => {
     const extension = file
@@ -84,13 +71,31 @@ export const HomePage = () => {
     alert(`opening folder: ${file}`);
   };
 
+  const handleDownload = (index) => {
+    alert(`download ${index}`);
+  };
+
+  const handleDelete = (index) => {
+    ToastButtons(
+      () => alert(`delete ${index}`),
+      () => alert(`törlés megszakítva`)
+    );
+  };
+
+  const files = useMemo(() => {
+    // A rendezés a mappákat (feltételezve, hogy nincs bennük pont) előre helyezi.
+    return [...initialFiles].sort(
+      (a, b) => a.split(".").length - b.split(".").length
+    );
+  }, [initialFiles]);
+
   useEffect(() => {
     if (!token) {
       navigate("/login");
       return;
     }
 
-    const fetchFiles = async (req, res) => {
+    const fetchFiles = async () => {
       try {
         const res = await fetch("http://localhost:5000/api/files", {
           method: "GET",
@@ -103,7 +108,7 @@ export const HomePage = () => {
       } catch (error) {
         console.error(error);
       } finally {
-        setIsLoading(false);
+        setTimeout(() => setIsLoading(false), 1000);
       }
     };
     fetchFiles();
@@ -111,7 +116,7 @@ export const HomePage = () => {
 
   return (
     <div className="w-full h-full flex flex-col items-center overflow-auto">
-      <h1 className="text-xl md:text-2xl lg:text-3xl font-semibold text-center">
+      <h1 className="text-xl md:text-2xl lg:text-3xl font-semibold text-center mb-2">
         Feltöltött fájlok
       </h1>
 
@@ -141,11 +146,13 @@ export const HomePage = () => {
                 {file.split(".").length === 1 ? null : (
                   <div className="flex justify-around w-full p-1.5">
                     <TbFileDownload
+                      title="Letöltés"
                       size={25}
                       onClick={() => handleDownload(index)}
                       className="mr-1.5 hover:text-blue-500/90 hover:scale-105 transition-all"
                     />
                     <TbTrash
+                      title="Törtés"
                       size={25}
                       onClick={() => handleDelete(index)}
                       className="hover:text-red-500/90 hover:scale-105 transition-all"
