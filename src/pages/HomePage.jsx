@@ -71,11 +71,35 @@ export const HomePage = () => {
     alert(`opening folder: ${file}`);
   };
 
-  const handleDownload = (index) => {
-    alert(`download ${index}`);
+  const handleDownload = async (file) => {
+    try {
+      const res = await fetch(
+        `http://localhost:5000/api/files/download/${file}`,
+        {
+          method: "GET",
+          headers: {
+            authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (!res.ok) throw new Error("Nem sikerült letölteni a fájlt!");
+
+      const url = await res.json();
+
+      const fileName = file.split("@&|")[1];
+
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
-  const handleDelete = async (file) => {
+  const handleDelete = (file) => {
     ToastButtons(
       () => deleteFile(file),
       () => alert(`törlés megszakítva`)
