@@ -56,7 +56,7 @@ export const SidePanel = ({ setIsOpen, theme, setTheme }) => {
           </li>
         </ul>
         <div>
-          <LoginButton />
+          <LoginButton setIsOpen={setIsOpen} />
           <ThemeToggler theme={theme} setTheme={setTheme} />
         </div>
       </div>

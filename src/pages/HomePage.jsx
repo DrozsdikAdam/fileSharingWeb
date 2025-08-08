@@ -18,7 +18,7 @@ import { useNavigate } from "react-router-dom";
 import { ToastButtons } from "../components/ToastWithButtons";
 
 export const HomePage = () => {
-  const token = localStorage.getItem("token");
+  var token = localStorage.getItem("token");
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
 
@@ -96,6 +96,23 @@ export const HomePage = () => {
     }
   };
 
+  const fetchFiles = async () => {
+    try {
+      const res = await fetch("http://localhost:5000/api/files", {
+        method: "GET",
+        headers: {
+          authorization: `Bearer ${token}`,
+        },
+      });
+      const data = await res.json();
+      setInitialFiles(data);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setTimeout(() => setIsLoading(false), 1000);
+    }
+  };
+
   const files = useMemo(() => {
     // A rendezés a mappákat (feltételezve, hogy nincs bennük pont) előre helyezi.
     return [...initialFiles].sort(
@@ -104,27 +121,11 @@ export const HomePage = () => {
   }, [initialFiles]);
 
   useEffect(() => {
+    token = localStorage.getItem("token");
     if (!token) {
       navigate("/login");
       return;
     }
-
-    const fetchFiles = async () => {
-      try {
-        const res = await fetch("http://localhost:5000/api/files", {
-          method: "GET",
-          headers: {
-            authorization: `Bearer ${token}`,
-          },
-        });
-        const data = await res.json();
-        setInitialFiles(data);
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setTimeout(() => setIsLoading(false), 1000);
-      }
-    };
     fetchFiles();
   }, [token, navigate]);
 

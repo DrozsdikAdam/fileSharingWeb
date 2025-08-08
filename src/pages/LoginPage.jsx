@@ -1,17 +1,23 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "../contexts/UserContext";
 
 export const LoginPage = () => {
   const navigate = useNavigate();
 
+  const { user, login } = useUser();
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
 
   const emailRef = useRef();
   const passwordRef = useRef();
 
-  const { login } = useUser();
+  useEffect(() => {
+    // Ha a felhasználó már be van jelentkezve, irányítsuk át a főoldalra.
+    if (user) {
+      navigate("/");
+    }
+  }, [user, navigate]);
 
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -25,7 +31,7 @@ export const LoginPage = () => {
     return passwRegex.test(password);
   };
 
-  const handleClick = (e) => {
+  const handleClick = async (e) => {
     e.preventDefault();
     let isFormValid = true;
     const email = emailRef.current.value;
@@ -48,8 +54,10 @@ export const LoginPage = () => {
     } else setPasswordError("");
 
     if (isFormValid) {
-      login(email, password);
-      navigate("/");
+      const success = await login(email, password);
+      if (success) {
+        navigate("/");
+      }
     }
   };
 
