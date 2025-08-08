@@ -18,7 +18,7 @@ import { useNavigate } from "react-router-dom";
 import { ToastButtons } from "../components/ToastWithButtons";
 
 export const HomePage = () => {
-  var token = localStorage.getItem("token");
+  let token = localStorage.getItem("token");
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
 
@@ -145,7 +145,6 @@ export const HomePage = () => {
   }, [initialFiles]);
 
   useEffect(() => {
-    token = localStorage.getItem("token");
     if (!token) {
       navigate("/login");
       return;
