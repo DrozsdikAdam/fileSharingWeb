@@ -13,7 +13,7 @@ function App() {
   return (
     <>
       <UserProvider>
-        <div className="flex h-screen bg-gray-400/70 dark:bg-gray-800 text-indigo-900 dark:text-indigo-300 transition-all duration-300">
+        <div className="flex h-screen bg-gray-300 dark:bg-gray-800 text-indigo-900 dark:text-indigo-300 transition-all duration-300">
           <Outlet context={{ theme, setTheme }} />
         </div>
       </UserProvider>
