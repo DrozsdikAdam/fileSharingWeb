@@ -12,7 +12,7 @@ export function UploadPage() {
   const [error, setError] = useState(null);
   const [folders, setFolders] = useState([]);
   const [initialFiles, setInitialFiles] = useState([]);
-  const [selectedFolder, setSelectedFolder] = useState("/"); // Új állapot a kiválasztott mappának
+  const [selectedFolder, setSelectedFolder] = useState(""); // A gyökérkönyvtár mostantól üres string
   const [isLoading, setIsLoading] = useState(true);
 
   const onDrop = useCallback(
@@ -178,7 +178,7 @@ export function UploadPage() {
             value={selectedFolder}
             onChange={(e) => setSelectedFolder(e.target.value)}
           >
-            <option value="/">📁 Főkönyvtár</option>
+            <option value="">📁 Főkönyvtár</option>
             {folders.map((folder) => (
               <option key={folder.value} value={folder.value}>
                 {folder.label}

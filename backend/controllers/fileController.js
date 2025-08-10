@@ -34,7 +34,7 @@ exports.uploadFile = async (req, res) => {
 
     const folder = req.body.folder;
     const sanitizedOriginalName = sanitizeFilenameForS3(originalNameDecoded);
-    const s3Key = `${folder}/${Date.now()}@&|${sanitizedOriginalName}`;
+    const s3Key = `${folder === "" ? "" : (folder + "/")}${Date.now()}@&|${sanitizedOriginalName}`;
     await s3.send(
       new PutObjectCommand({
         Bucket: BUCKET,
