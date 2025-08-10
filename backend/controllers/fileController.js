@@ -32,9 +32,9 @@ exports.uploadFile = async (req, res) => {
       "latin1"
     ).toString("utf8");
 
-
+    const folder = req.body.folder;
     const sanitizedOriginalName = sanitizeFilenameForS3(originalNameDecoded);
-    const s3Key = `${Date.now()}@&|${sanitizedOriginalName}`;
+    const s3Key = `${folder}/${Date.now()}@&|${sanitizedOriginalName}`;
     await s3.send(
       new PutObjectCommand({
         Bucket: BUCKET,
