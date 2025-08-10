@@ -21,7 +21,7 @@ export const HomePage = () => {
   let token = localStorage.getItem("token");
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
-
+  const [currentFolder, setCurrentFolder] = useState("");
   const [initialFiles, setInitialFiles] = useState([]);
 
   const selectIcons = (file) => {
@@ -30,9 +30,6 @@ export const HomePage = () => {
       [file.split(".").length - 1].toString()
       .trim()
       .toLowerCase();
-    const parts = file.split(".");
-
-    if (parts.length === 1) return <FaFolder size={50} className="my-2" />;
 
     switch (extension) {
       case "txt":
@@ -68,7 +65,8 @@ export const HomePage = () => {
   };
 
   const openFolder = (file) => {
-    alert(`opening folder: ${file}`);
+    const newFolder = currentFolder ? `${currentFolder}/${file}` : file;
+    setCurrentFolder(newFolder);
   };
 
   const handleDownload = async (file) => {
@@ -137,12 +135,44 @@ export const HomePage = () => {
     }
   };
 
+  const goBack = () => {
+    if (currentFolder === "") return;
+    const parts = currentFolder.split("/");
+    parts.pop();
+    setCurrentFolder(parts.join("/"));
+  };
+
   const files = useMemo(() => {
     // A rendezés a mappákat (feltételezve, hogy nincs bennük pont) előre helyezi.
-    return [...initialFiles].sort(
-      (a, b) => b.split("/").length - a.split("/").length
-    );
-  }, [initialFiles]);
+    const directChildren = new Set();
+
+    initialFiles.forEach((file) => {
+      // Ha a gyökérkönyvtárban vagyunk
+      if (currentFolder === "") {
+        // Az útvonal első részét adjuk hozzá (ez lehet egy mappa vagy egy fájl a gyökérben)
+        directChildren.add(file.split("/")[0]);
+      } else {
+        directChildren.add("..");
+        // Ha egy almappában vagyunk, ellenőrizzük, hogy a fájl a jelenlegi mappával kezdődik-e
+        const prefix = currentFolder + "/";
+        if (file.startsWith(prefix)) {
+          // Levágjuk a jelenlegi mappa útvonalát, hogy megkapjuk a relatív útvonalat
+          const restOfPath = file.substring(prefix.length);
+          // Hozzáadjuk a következő mappát vagy fájlnevet
+          directChildren.add(restOfPath.split("/")[0]);
+        }
+      }
+    });
+
+    // Mappák előre rendezése (egyszerűsített ellenőrzéssel)
+    return Array.from(directChildren).sort((a, b) => {
+      const aIsFolder = !a.includes(".");
+      const bIsFolder = !b.includes(".");
+      if (aIsFolder && !bIsFolder) return -1;
+      if (!aIsFolder && bIsFolder) return 1;
+      return a.localeCompare(b);
+    });
+  }, [initialFiles, currentFolder]);
 
   useEffect(() => {
     if (!token) {
@@ -167,40 +197,86 @@ export const HomePage = () => {
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-5 w-full p-4">
           {token &&
-            files.map((file, index) => (
-              <div
-                key={index}
-                className="shadow-md shadow-indigo-800 hover:scale-105 hover:shadow-indigo-700 border-2 border-purple-700 hover:shadow-lg transition-all overflow-hidden rounded-lg flex justify-center flex-col p-0.5 dark:bg-indigo-900/30"
-                {...(file.split("/")[0].split(".").length === 1
-                  ? { onDoubleClick: () => openFolder(file.split("/")[0]) }
-                  : null)}
-              >
-                <div className="flex items-center justify-center w-full p-1 hover:animate-pulse">
-                  {selectIcons(file.split("/")[0])}
-                </div>
-                <div className="p-1 overflow-hidden" title={file.split("/")[0]}>
-                  {file.split("/").length === 1
-                    ? file.split("/")[0].split("@&|")[1]
-                    : file.split("/")[0]}
-                </div>
-                {file.split("/")[0].split(".").length === 1 ? null : (
-                  <div className="flex justify-around w-full p-1.5">
-                    <TbFileDownload
-                      title="Letöltés"
-                      size={25}
-                      onClick={() => handleDownload(file.split("/")[0])}
-                      className="mr-1.5 hover:text-blue-500/90 hover:scale-105 transition-all"
-                    />
-                    <TbTrash
-                      title="Törtés"
-                      size={25}
-                      onClick={() => handleDelete(file.split("/")[0])}
-                      className="hover:text-red-500/90 hover:scale-105 transition-all"
-                    />
-                  </div>
-                )}
-              </div>
-            ))}
+            files.map((file, index) => {
+              return (
+                <>
+                  {/*itt kezdődik a két pont "visszalépés mappa" */}
+                  {file.split("/")[0] === ".." ? (
+                    <div
+                      key={index}
+                      onDoubleClick={goBack}
+                      className="shadow-md shadow-indigo-800 hover:scale-105 hover:shadow-indigo-700 border-2 border-purple-700 hover:shadow-lg transition-all overflow-hidden rounded-lg flex justify-center flex-col p-0.5 dark:bg-indigo-900/30"
+                    >
+                      <div className="flex items-center justify-center w-full p-1 hover:animate-pulse">
+                        <FaFolder size={50} className="my-2" />
+                      </div>
+                      <div
+                        className="p-1 font-bold text-3xl overflow-hidden"
+                        title={file.split("/")[0]}
+                      >
+                        {file.split("/")[0]}
+                      </div>
+                    </div>
+                  ) : null}
+                  {/*itt ér véget a két pont "visszalépés mappa" */}
+
+                  {/*itt kezdődik a mappa kezelés */}
+                  {file.split("/")[0].split(".").length === 1 ? (
+                    <div
+                      key={index}
+                      onDoubleClick={() => openFolder(file.split("/")[0])}
+                      className="shadow-md shadow-indigo-800 hover:scale-105 hover:shadow-indigo-700 border-2 border-purple-700 hover:shadow-lg transition-all overflow-hidden rounded-lg flex justify-center flex-col p-0.5 dark:bg-indigo-900/30"
+                    >
+                      <div className="flex items-center justify-center w-full p-1 hover:animate-pulse">
+                        <FaFolder size={50} className="my-2" />
+                      </div>
+                      <div
+                        className="p-1  overflow-hidden"
+                        title={file.split("/")[0]}
+                      >
+                        {file.split("/")[0]}
+                      </div>
+                    </div>
+                  ) : null}
+                  {/*itt ér véget a mappa kezelés */}
+
+                  {/*itt kezdődik a fájl kezelés */}
+                  {file.split("/")[0] !== ".." &&
+                  file.split("/")[0].split(".").length > 1 ? (
+                    <div
+                      key={index}
+                      className="shadow-md shadow-indigo-800 hover:scale-105 hover:shadow-indigo-700 border-2 border-purple-700 hover:shadow-lg transition-all overflow-hidden rounded-lg flex justify-center flex-col p-0.5 dark:bg-indigo-900/30"
+                    >
+                      <div className="flex items-center justify-center w-full p-1 hover:animate-pulse">
+                        {selectIcons(file.split("/")[0])}
+                      </div>
+                      <div
+                        className="p-1 overflow-hidden"
+                        title={file.split("/")[0].split("@&|")[1]}
+                      >
+                        {file.split("/")[0].split("@&|")[1]}
+                      </div>
+
+                      <div className="flex justify-around w-full p-1.5">
+                        <TbFileDownload
+                          title="Letöltés"
+                          size={25}
+                          onClick={() => handleDownload(file.split("/")[0])}
+                          className="mr-1.5 hover:text-blue-500/90 hover:scale-105 transition-all"
+                        />
+                        <TbTrash
+                          title="Törlés"
+                          size={25}
+                          onClick={() => handleDelete(file.split("/")[0])}
+                          className="hover:text-red-500/90 hover:scale-105 transition-all"
+                        />
+                      </div>
+                    </div>
+                  ) : null}
+                  {/*itt ér véget a fájl kezelés */}
+                </>
+              );
+            })}
         </div>
       )}
     </div>
