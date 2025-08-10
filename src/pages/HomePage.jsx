@@ -140,7 +140,7 @@ export const HomePage = () => {
   const files = useMemo(() => {
     // A rendezés a mappákat (feltételezve, hogy nincs bennük pont) előre helyezi.
     return [...initialFiles].sort(
-      (a, b) => a.split(".").length - b.split(".").length
+      (a, b) => b.split("/").length - a.split("/").length
     );
   }, [initialFiles]);
 
@@ -171,28 +171,30 @@ export const HomePage = () => {
               <div
                 key={index}
                 className="shadow-md shadow-indigo-800 hover:scale-105 hover:shadow-indigo-700 border-2 border-purple-700 hover:shadow-lg transition-all overflow-hidden rounded-lg flex justify-center flex-col p-0.5 dark:bg-indigo-900/30"
-                {...(file.split(".").length === 1
-                  ? { onDoubleClick: () => openFolder(file) }
+                {...(file.split("/")[0].split(".").length === 1
+                  ? { onDoubleClick: () => openFolder(file.split("/")[0]) }
                   : null)}
               >
                 <div className="flex items-center justify-center w-full p-1 hover:animate-pulse">
-                  {selectIcons(file)}
+                  {selectIcons(file.split("/")[0])}
                 </div>
-                <div className="p-1 overflow-hidden" title={file}>
-                  {file.split("@&|")[1]}
+                <div className="p-1 overflow-hidden" title={file.split("/")[0]}>
+                  {file.split("/").length === 1
+                    ? file.split("/")[0].split("@&|")[1]
+                    : file.split("/")[0]}
                 </div>
-                {file.split(".").length === 1 ? null : (
+                {file.split("/")[0].split(".").length === 1 ? null : (
                   <div className="flex justify-around w-full p-1.5">
                     <TbFileDownload
                       title="Letöltés"
                       size={25}
-                      onClick={() => handleDownload(file)}
+                      onClick={() => handleDownload(file.split("/")[0])}
                       className="mr-1.5 hover:text-blue-500/90 hover:scale-105 transition-all"
                     />
                     <TbTrash
                       title="Törtés"
                       size={25}
-                      onClick={() => handleDelete(file)}
+                      onClick={() => handleDelete(file.split("/")[0])}
                       className="hover:text-red-500/90 hover:scale-105 transition-all"
                     />
                   </div>
