@@ -164,10 +164,45 @@ export const HomePage = () => {
     }
   };
 
-  const newFolder = () => {
+  const newFolder = async () => {
     const folderName = NewFolderRef.current.value.trim();
     if (!folderName) return;
-    setIsNewFolder(true);
+
+    if (folderName.includes("/") || folderName.includes("\\")) {
+      alert("A mappa neve nem tartalmazhat perjelet!");
+      return;
+    }
+
+    try {
+      const res = await fetch("http://localhost:5000/api/files/folders", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          folderName: folderName,
+          path: currentFolder,
+        }),
+      });
+      if (!res.ok) {
+        // Kezeljük a nem JSON hibaüzeneteket is
+        const errorText = await res.text();
+        try {
+          const errorData = JSON.parse(errorText);
+          throw new Error(errorData.message || "Mappa létrehozása sikertelen.");
+        } catch (jsonError) {
+          throw new Error(
+            `HTTP hiba: ${res.status} - ${res.statusText}. Szerver válasza: ${errorText}`
+          );
+        }
+      }
+      NewFolderRef.current.value = "";
+      setIsNewFolder(true);
+      await fetchFiles();
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const goBack = () => {
@@ -237,123 +272,128 @@ export const HomePage = () => {
           {token &&
             files.map((file, index) => {
               return (
-                <div
-                  key={index}
-                  className="shadow-md shadow-indigo-800 hover:scale-105 hover:shadow-indigo-700 border-2 border-purple-700 hover:shadow-lg transition-all overflow-hidden rounded-lg flex justify-center flex-col dark:bg-indigo-900/30"
-                >
-                  {/*Itt kezdődik az új mappa készítés */}
-                  {file.split("/")[0] === "+" ? (
-                    <div
-                      onDoubleClick={() => setIsNewFolder(false)}
-                      className="w-full h-full p-0.5"
-                    >
-                      <div className="flex items-center justify-center w-full p-1 hover:animate-pulse">
-                        <FaFolderPlus
-                          size={!isNewFolder ? 40 : 50}
-                          className="my-2"
-                        />
-                      </div>
-                      <div className="p-1 overflow-hidden" title="Új mappa">
-                        <input
-                          ref={NewFolderRef}
-                          type="text"
-                          disabled={isNewFolder}
-                          className={`w-full rounded-sm text-lg font-medium p-0.5 ${
-                            isNewFolder ? null : "ring-2 ring-indigo-500"
-                          }`}
-                          placeholder="Új mappa neve"
-                        />
-                      </div>
-                      {!isNewFolder && (
-                        <div className="grid grid-cols-2 gap-2 w-full p-1.5">
-                          <button
-                            onClick={() => setIsNewFolder(true)}
-                            className="bg-red-500 text-black hover:rounded-md hover:bg-red-600 transition-all duration-200"
-                          >
-                            Elvetés
-                          </button>
-                          <button
-                            onClick={newFolder}
-                            className="bg-green-500 text-black hover:rounded-md hover:bg-green-600 transition-all duration-200"
-                          >
-                            Mentés
-                          </button>
+                file.split("/")[0] !== "" && (
+                  <div
+                    key={index}
+                    className="shadow-md shadow-indigo-800 hover:scale-105 hover:shadow-indigo-700 border-2 border-purple-700 hover:shadow-lg transition-all overflow-hidden rounded-lg flex justify-center flex-col dark:bg-indigo-900/30"
+                  >
+                    {/*Itt kezdődik az új mappa készítés */}
+                    {file.split("/")[0] === "+" ? (
+                      <div
+                        onDoubleClick={() => setIsNewFolder(false)}
+                        className="w-full h-full p-0.5"
+                      >
+                        <div className="flex items-center justify-center w-full p-1 hover:animate-pulse">
+                          <FaFolderPlus
+                            size={!isNewFolder ? 40 : 50}
+                            className="my-2"
+                          />
                         </div>
-                      )}
-                    </div>
-                  ) : null}
-                  {/*Itt ér véget az új mappa készítés */}
-
-                  {/*itt kezdődik a két pont "visszalépés mappa" */}
-                  {file.split("/")[0] === ".." ? (
-                    <div onDoubleClick={goBack} className="w-full h-full">
-                      <div className="flex items-center justify-center w-full p-1 hover:animate-pulse">
-                        <FaFolder size={50} className="my-2" />
+                        <div className="p-1 overflow-hidden" title="Új mappa">
+                          <input
+                            ref={NewFolderRef}
+                            type="text"
+                            disabled={isNewFolder}
+                            className={`w-full rounded-sm text-lg font-medium p-0.5 ${
+                              isNewFolder ? null : "ring-2 ring-indigo-500"
+                            }`}
+                            placeholder="Új mappa neve"
+                          />
+                        </div>
+                        {!isNewFolder && (
+                          <div className="grid grid-cols-2 gap-2 w-full p-1.5">
+                            <button
+                              onClick={() => {
+                                setIsNewFolder(true);
+                                NewFolderRef.current.value = "";
+                              }}
+                              className="bg-red-500 text-black hover:rounded-md hover:bg-red-600 transition-all duration-200"
+                            >
+                              Elvetés
+                            </button>
+                            <button
+                              onClick={newFolder}
+                              className="bg-green-500 text-black hover:rounded-md hover:bg-green-600 transition-all duration-200"
+                            >
+                              Mentés
+                            </button>
+                          </div>
+                        )}
                       </div>
+                    ) : null}
+                    {/*Itt ér véget az új mappa készítés */}
+
+                    {/*itt kezdődik a két pont "visszalépés mappa" */}
+                    {file.split("/")[0] === ".." ? (
+                      <div onDoubleClick={goBack} className="w-full h-full">
+                        <div className="flex items-center justify-center w-full p-1 hover:animate-pulse">
+                          <FaFolder size={50} className="my-2" />
+                        </div>
+                        <div
+                          className="p-1 font-bold text-3xl overflow-hidden"
+                          title="Vissza"
+                        >
+                          {file.split("/")[0]}
+                        </div>
+                      </div>
+                    ) : null}
+                    {/*itt ér véget a két pont "visszalépés mappa" */}
+
+                    {/*itt kezdődik a mappa kezelés */}
+                    {file.split("/")[0].split(".").length === 1 &&
+                    file.split("/")[0] !== "+" &&
+                    file.split("/")[0] !== ".." ? (
                       <div
-                        className="p-1 font-bold text-3xl overflow-hidden"
-                        title="Vissza"
+                        onDoubleClick={() => openFolder(file.split("/")[0])}
+                        className="w-full h-full"
                       >
-                        {file.split("/")[0]}
+                        <div className="flex items-center justify-center w-full p-1 hover:animate-pulse">
+                          <FaFolder size={50} className="my-2" />
+                        </div>
+                        <div
+                          className="p-1  overflow-hidden"
+                          title={file.split("/")[0]}
+                        >
+                          {file.split("/")[0]}
+                        </div>
                       </div>
-                    </div>
-                  ) : null}
-                  {/*itt ér véget a két pont "visszalépés mappa" */}
+                    ) : null}
+                    {/*itt ér véget a mappa kezelés */}
 
-                  {/*itt kezdődik a mappa kezelés */}
-                  {file.split("/")[0].split(".").length === 1 &&
-                  file.split("/")[0] !== "+" &&
-                  file.split("/")[0] !== ".." ? (
-                    <div
-                      onDoubleClick={() => openFolder(file.split("/")[0])}
-                      className="w-full h-full"
-                    >
-                      <div className="flex items-center justify-center w-full p-1 hover:animate-pulse">
-                        <FaFolder size={50} className="my-2" />
-                      </div>
-                      <div
-                        className="p-1  overflow-hidden"
-                        title={file.split("/")[0]}
-                      >
-                        {file.split("/")[0]}
-                      </div>
-                    </div>
-                  ) : null}
-                  {/*itt ér véget a mappa kezelés */}
+                    {/*itt kezdődik a fájl kezelés */}
+                    {file.split("/")[0] !== ".." &&
+                    file.split("/")[0] !== "+" &&
+                    file.split("/")[0].split(".").length > 1 ? (
+                      <div className="w-full h-full">
+                        <div className="flex items-center justify-center w-full p-1 hover:animate-pulse">
+                          {selectIcons(file.split("/")[0])}
+                        </div>
+                        <div
+                          className="p-1 overflow-hidden"
+                          title={file.split("/")[0].split("@&|")[1]}
+                        >
+                          {file.split("/")[0].split("@&|")[1]}
+                        </div>
 
-                  {/*itt kezdődik a fájl kezelés */}
-                  {file.split("/")[0] !== ".." &&
-                  file.split("/")[0] !== "+" &&
-                  file.split("/")[0].split(".").length > 1 ? (
-                    <div className="w-full h-full">
-                      <div className="flex items-center justify-center w-full p-1 hover:animate-pulse">
-                        {selectIcons(file.split("/")[0])}
+                        <div className="flex justify-around w-full p-1.5">
+                          <TbFileDownload
+                            title="Letöltés"
+                            size={25}
+                            onClick={() => handleDownload(file.split("/")[0])}
+                            className="mr-1.5 hover:text-blue-500/90 hover:scale-105 transition-all"
+                          />
+                          <TbTrash
+                            title="Törlés"
+                            size={25}
+                            onClick={() => handleDelete(file.split("/")[0])}
+                            className="hover:text-red-500/90 hover:scale-105 transition-all"
+                          />
+                        </div>
                       </div>
-                      <div
-                        className="p-1 overflow-hidden"
-                        title={file.split("/")[0].split("@&|")[1]}
-                      >
-                        {file.split("/")[0].split("@&|")[1]}
-                      </div>
-
-                      <div className="flex justify-around w-full p-1.5">
-                        <TbFileDownload
-                          title="Letöltés"
-                          size={25}
-                          onClick={() => handleDownload(file.split("/")[0])}
-                          className="mr-1.5 hover:text-blue-500/90 hover:scale-105 transition-all"
-                        />
-                        <TbTrash
-                          title="Törlés"
-                          size={25}
-                          onClick={() => handleDelete(file.split("/")[0])}
-                          className="hover:text-red-500/90 hover:scale-105 transition-all"
-                        />
-                      </div>
-                    </div>
-                  ) : null}
-                  {/*itt ér véget a fájl kezelés */}
-                </div>
+                    ) : null}
+                    {/*itt ér véget a fájl kezelés */}
+                  </div>
+                )
               );
             })}
         </div>

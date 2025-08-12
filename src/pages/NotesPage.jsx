@@ -112,7 +112,7 @@ export const NotesPage = () => {
               notes.map((note, index) => (
                 <li
                   key={index}
-                  className="grid mb-2 grid-cols-4 lg:grid-cols-5 gap-1 hover:bg-gray-500/10 dark:hover:bg-gray-600/50 p-2 w-full border-b-2 border-indigo-900 dark:border-indigo-300 shadow-lg dark:hover:shadow-indigo-300/30 hover:shadow-indigo-900/30"
+                  className="grid mb-2 grid-cols-4 lg:grid-cols-5 gap-1 hover:bg-gray-500/10 dark:hover:bg-gray-600/50 p-2 w-full border-b-2 border-l-2 border-indigo-900 dark:border-indigo-300 shadow-lg dark:hover:shadow-indigo-300/30 hover:shadow-indigo-900/30"
                 >
                   <div
                     onClick={() => completedNote(note.id)}
