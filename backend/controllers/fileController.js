@@ -68,6 +68,23 @@ exports.listFiles = async (req, res) => {
   }
 }
 
+exports.createFolder = async (req, res) => {
+  const { name } = req.body
+
+  try {
+    const folderKey = `${name.replace(/\/+$/, "")}/`;
+    await s3.send(new PutObjectCommand({
+      Bucket: BUCKET,
+      key: folderKey,
+      Body: "",
+    }));
+    res.json({ success: true, message: "Mappa sikeresen létrehozva" })
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({ error: "Nem sikerült létrehozni a mappát" })
+  }
+}
+
 exports.getPresignedUrl = async (req, res) => {
   const { filename } = req.params
 
