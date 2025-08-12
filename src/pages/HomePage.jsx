@@ -80,6 +80,12 @@ export const HomePage = () => {
           },
         }
       );
+      if (res.status === 401) {
+        localStorage.removeItem("token");
+        navigate("/login");
+        // Optionally show a toast message about session expiration
+        return;
+      }
       if (!res.ok) throw new Error("Nem sikerült letölteni a fájlt!");
 
       const url = await res.json();
@@ -112,6 +118,12 @@ export const HomePage = () => {
           authorization: `Bearer ${token}`,
         },
       });
+      if (res.status === 401) {
+        localStorage.removeItem("token");
+        navigate("/login");
+        // Optionally show a toast message about session expiration
+        return;
+      }
       if (res.ok) setInitialFiles(initialFiles.filter((f) => f !== file));
     } catch (error) {
       console.log(error);
@@ -126,8 +138,22 @@ export const HomePage = () => {
           authorization: `Bearer ${token}`,
         },
       });
+      if (res.status === 401) {
+        localStorage.removeItem("token");
+        navigate("/login");
+        // Optionally show a toast message about session expiration
+        return;
+      }
+      if (!res.ok) {
+        // Throw an error to be caught by the catch block, this handles 403 and other errors
+        const errorBody = await res.text();
+        throw new Error(
+          `HTTP error! status: ${res.status}, body: ${errorBody}`
+        );
+      }
       const data = await res.json();
-      setInitialFiles(data);
+      // Defensively ensure the data is an array before setting state
+      setInitialFiles(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error(error);
     } finally {
@@ -146,13 +172,16 @@ export const HomePage = () => {
     // A rendezés a mappákat (feltételezve, hogy nincs bennük pont) előre helyezi.
     const directChildren = new Set();
 
+    if (currentFolder !== "") {
+      directChildren.add("..");
+    }
+
     initialFiles.forEach((file) => {
       // Ha a gyökérkönyvtárban vagyunk
       if (currentFolder === "") {
         // Az útvonal első részét adjuk hozzá (ez lehet egy mappa vagy egy fájl a gyökérben)
         directChildren.add(file.split("/")[0]);
       } else {
-        directChildren.add("..");
         // Ha egy almappában vagyunk, ellenőrizzük, hogy a fájl a jelenlegi mappával kezdődik-e
         const prefix = currentFolder + "/";
         if (file.startsWith(prefix)) {
