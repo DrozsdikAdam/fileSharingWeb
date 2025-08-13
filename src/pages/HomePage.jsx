@@ -215,10 +215,6 @@ export const HomePage = () => {
   const files = useMemo(() => {
     // A rendezés a mappákat (feltételezve, hogy nincs bennük pont) előre helyezi.
     const directChildren = new Set();
-    directChildren.add("+");
-    if (currentFolder !== "") {
-      directChildren.add("..");
-    }
 
     initialFiles.forEach((file) => {
       // Ha a gyökérkönyvtárban vagyunk
@@ -236,13 +232,26 @@ export const HomePage = () => {
         }
       }
     });
-
-    // Mappák előre rendezése (egyszerűsített ellenőrzéssel)
+    directChildren.add("+");
+    if (currentFolder !== "") {
+      directChildren.add("..");
+    }
+    // Elemek rendezése: +, .., mappák, fájlok
     return Array.from(directChildren).sort((a, b) => {
-      const aIsFolder = !a.includes(".");
-      const bIsFolder = !b.includes(".");
-      if (aIsFolder && !bIsFolder) return -1;
-      if (!aIsFolder && bIsFolder) return 1;
+      const getItemType = (item) => {
+        if (item === "+") return 0; // Új mappa gomb
+        if (item === "..") return 1; // Visszalépés
+        if (!item.includes(".")) return 2; // Mappa (nincs benne pont)
+        return 3; // Fájl
+      };
+
+      const typeA = getItemType(a);
+      const typeB = getItemType(b);
+
+      if (typeA !== typeB) {
+        return typeA - typeB;
+      }
+
       return a.localeCompare(b);
     });
   }, [initialFiles, currentFolder]);
@@ -294,7 +303,7 @@ export const HomePage = () => {
                             ref={NewFolderRef}
                             type="text"
                             disabled={isNewFolder}
-                            className={`w-full rounded-sm text-lg font-medium p-0.5 ${
+                            className={`w-full rounded-sm text-lg font-medium p-0.5 placeholder:text-indigo-900 dark:placeholder:text-indigo-300 ${
                               isNewFolder ? null : "ring-2 ring-indigo-500"
                             }`}
                             placeholder="Új mappa neve"
