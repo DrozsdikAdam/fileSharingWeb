@@ -7,6 +7,7 @@ const {
   listFiles,
   getPresignedUrl,
   deleteFile,
+  createFolder
 } = require("../controllers/fileController");
 
 const router = express.Router();
@@ -16,6 +17,7 @@ router.use(verifyToken);
 const upload = multer({ storage: multer.memoryStorage() });
 
 router.post('/upload', upload.single('file'), uploadFile);
+router.post('/folders', createFolder);
 router.get('/', listFiles);
 router.get('/download/:filename', getPresignedUrl);
 router.delete('/:filename', deleteFile);

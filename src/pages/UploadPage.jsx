@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 import { useNavigate } from "react-router-dom";
 import { ImSpinner9 } from "react-icons/im";
@@ -7,68 +7,187 @@ export function UploadPage() {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
 
-  if (!token) navigate("/login");
   const [uploading, setUploading] = useState(false);
   const [uploadedFiles, setUploadFiles] = useState([]);
   const [error, setError] = useState(null);
+  const [folders, setFolders] = useState([]);
+  const [initialFiles, setInitialFiles] = useState([]);
+  const [selectedFolder, setSelectedFolder] = useState(""); // A gyökérkönyvtár mostantól üres string
+  const [isLoading, setIsLoading] = useState(true);
 
-  const onDrop = (acceptedFiles) => {
-    setUploading(true);
-    setError(null);
+  const onDrop = useCallback(
+    (acceptedFiles) => {
+      setUploading(true);
+      setError(null);
 
-    const uploadPromises = acceptedFiles.map((file) => {
-      const formData = new FormData();
-      formData.append("file", file);
+      const uploadPromises = acceptedFiles.map((file) => {
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("folder", selectedFolder); // A kiválasztott mappa hozzáadása
 
-      return fetch("http://localhost:5000/api/files/upload", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: formData,
-      })
-        .then(async (res) => {
-          // A then blokkot async-ként jelöljük, hogy használhassuk az await-et
-          // Először ellenőrizzük, hogy a kérés sikeres volt-e (pl. 200 OK).
-          if (!res.ok) {
-            // Ha nem, akkor a válasz valószínűleg HTML vagy szöveg, nem JSON.
-            // Olvassuk ki a választ szövegként, hogy lássuk a szerver hibaüzenetét.
-            const errorText = await res.text();
-            // Dobjunk egy informatívabb hibát.
-            throw new Error(
-              `HTTP hiba: ${res.status} - ${
-                res.statusText
-              }. A szerver válasza: ${errorText.substring(0, 200)}...`
+        return fetch("http://localhost:5000/api/files/upload", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+        })
+          .then(async (res) => {
+            // A then blokkot async-ként jelöljük, hogy használhassuk az await-et
+            // Először ellenőrizzük, hogy a kérés sikeres volt-e (pl. 200 OK).
+            if (!res.ok) {
+              // Ha nem, akkor a válasz valószínűleg HTML vagy szöveg, nem JSON.
+              // Olvassuk ki a választ szövegként, hogy lássuk a szerver hibaüzenetét.
+              const errorText = await res.text();
+              // Dobjunk egy informatívabb hibát.
+              throw new Error(
+                `HTTP hiba: ${res.status} - ${
+                  res.statusText
+                }. A szerver válasza: ${errorText.substring(0, 200)}...`
+              );
+            }
+
+            // Ha a válasz sikeres volt, akkor próbáljuk meg JSON-ként feldolgozni.
+            // A res.json() már eleve hibát dob, ha a formátum nem megfelelő,
+            // amit a .catch() blokk elkap.
+            return res.json();
+          })
+          .then((data) => {
+            setUploadFiles((prev) => [...prev, data]);
+          })
+          .catch((err) => {
+            console.error(
+              `Feltöltési hiba a(z) ${file.name} fájlnál:`,
+              err.message
             );
-          }
+            setError(`Hiba a(z) ${file.name} feltöltésekor: ${err.message}`);
+          });
+      });
 
-          // Ha a válasz sikeres volt, akkor próbáljuk meg JSON-ként feldolgozni.
-          // A res.json() már eleve hibát dob, ha a formátum nem megfelelő,
-          // amit a .catch() blokk elkap.
-          return res.json();
-        })
-        .then((data) => {
-          setUploadFiles((prev) => [...prev, data]);
-        })
-        .catch((err) => {
-          console.error(
-            `Feltöltési hiba a(z) ${file.name} fájlnál:`,
-            err.message
-          );
-          setError(`Hiba a(z) ${file.name} feltöltésekor: ${err.message}`);
-        });
-    });
-
-    // Megvárjuk, amíg az összes feltöltés befejeződik, majd kikapcsoljuk a "feltöltés" állapotot.
-    Promise.allSettled(uploadPromises).finally(() => {
-      setUploading(false);
-    });
-  };
+      // Megvárjuk, amíg az összes feltöltés befejeződik, majd kikapcsoljuk a "feltöltés" állapotot.
+      Promise.allSettled(uploadPromises).finally(() => {
+        setUploading(false);
+      });
+    },
+    [token, selectedFolder] // Függőség hozzáadása
+  );
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
 
+  const fetchFiles = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const res = await fetch("http://localhost:5000/api/files", {
+        method: "GET",
+        headers: {
+          authorization: `Bearer ${token}`,
+        },
+      });
+      const data = await res.json();
+      setInitialFiles(data);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setTimeout(() => setIsLoading(false), 1000);
+    }
+  }, [token]);
+
+  const makeFolders = useCallback(() => {
+    const folderSet = new Set();
+
+    initialFiles.forEach((file) => {
+      // Csak a mappa részeket vesszük, a fájlnevet levágjuk
+      const pathParts = file.split("/").slice(0, -1);
+
+      if (pathParts.length > 0) {
+        let currentPath = "";
+        for (const part of pathParts) {
+          currentPath = currentPath ? `${currentPath}/${part}` : part;
+          folderSet.add(currentPath);
+        }
+      }
+    });
+
+    // Gyűjtsük ki az összes almappa nevét (azaz nem a teljes útvonalát).
+    // Például a 'szulomappa/gyerekmappa' útvonalból a 'gyerekmappa' nevet.
+    const subfolderBaseNames = new Set();
+    folderSet.forEach((path) => {
+      if (path.includes("/")) {
+        subfolderBaseNames.add(path.split("/").pop());
+      }
+    });
+
+    // Szűrjük ki azokat a gyökérmappákat, amelyeknek a neve megegyezik egy
+    // máshol létező almappa nevével. Ez a vizuális egyértelműséget szolgálja,
+    // de elrejthet egy valós feltöltési célpontot, ha a gyökérben és egy
+    // almappában is van azonos nevű mappa.
+    const allPaths = Array.from(folderSet);
+    const filteredPaths = allPaths.filter((path) => {
+      const isRootFolder = !path.includes("/");
+      // Ha ez egy gyökérmappa, és a neve szerepel az almappanevek között, akkor ne jelenítsük meg.
+      if (isRootFolder && subfolderBaseNames.has(path)) {
+        return false;
+      }
+      return true;
+    });
+
+    // A szűrt mappákat rendezzük név szerint.
+    const sortedPaths = filteredPaths.sort();
+    // Létrehozunk egy strukturált listát a legördülő menühöz, behúzásokkal.
+    const structuredFolders = sortedPaths.map((path) => {
+      const depth = path.split("/").length - 1;
+      const folderName = path.split("/").pop();
+
+      // A böngészők összenyomják a sima szóközöket, ezért "nem törhető szóközt" (nbsp) használunk a behúzás garantálásához.
+      const indentation = "\u00A0\u00A0\u00A0".repeat(depth); // 3 "nem törhető szóköz" szintenként
+      const prefix = depth > 0 ? "└─ " : ""; // Prefix hozzáadása az almappákhoz
+
+      return { value: path, label: `${indentation}${prefix}📁 ${folderName}` };
+    });
+
+    setFolders(structuredFolders);
+  }, [initialFiles]);
+
+  useEffect(() => {
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+    fetchFiles();
+  }, [token, navigate, fetchFiles]);
+
+  useEffect(() => {
+    if (initialFiles.length > 0) {
+      makeFolders();
+    }
+  }, [initialFiles, makeFolders]);
+
   return (
-    <div className="flex items-center justify-center h-full">
+    <div className="flex items-center flex-col justify-center h-full">
+      {isLoading ? (
+        <div className="flex">
+          <ImSpinner9 size={50} className="transition-all animate-spin" />
+        </div>
+      ) : (
+        <div className="flex flex-col items-center justify-center">
+          <p>Válaszd ki a mappát ahova fel szeretnéd tölteni a fájlokat!</p>
+          <select
+            name="folder-select"
+            id="folder-select"
+            className="p-2 my-2 rounded-md dark:bg-slate-700"
+            value={selectedFolder}
+            onChange={(e) => setSelectedFolder(e.target.value)}
+          >
+            <option value="">📁 Főkönyvtár</option>
+            {folders.map((folder) => (
+              <option key={folder.value} value={folder.value}>
+                {folder.label}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+
       <div className="flex flex-col items-center justify-center">
         <div {...getRootProps()}>
           <input {...getInputProps()} />

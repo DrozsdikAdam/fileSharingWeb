@@ -5,7 +5,7 @@ const {
   ListObjectsCommand,
   DeleteObjectCommand,
 } = require("@aws-sdk/client-s3");
-const { getSignedUrl } = require("@aws-sdk/s3-request-presigner")
+const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
 require("dotenv").config();
 
 const BUCKET = process.env.BUCKET;
@@ -32,9 +32,9 @@ exports.uploadFile = async (req, res) => {
       "latin1"
     ).toString("utf8");
 
-
+    const folder = req.body.folder;
     const sanitizedOriginalName = sanitizeFilenameForS3(originalNameDecoded);
-    const s3Key = `${Date.now()}@&|${sanitizedOriginalName}`;
+    const s3Key = `${folder === "" ? "" : (folder + "/")}${Date.now()}@&|${sanitizedOriginalName}`;
     await s3.send(
       new PutObjectCommand({
         Bucket: BUCKET,
@@ -68,6 +68,39 @@ exports.listFiles = async (req, res) => {
   }
 }
 
+exports.createFolder = async (req, res) => {
+  // A frontend `folderName`-t és `path`-t (currentFolder) küld.
+  const { folderName, path: currentPath } = req.body;
+
+  if (!folderName) {
+    return res.status(400).json({ message: "A mappa neve nem lehet üres." });
+  }
+
+  // A mappanév "megtisztítása" a nem biztonságos karakterektől.
+  const sanitizedFolderName = sanitizeFilenameForS3(folderName);
+  if (sanitizedFolderName === "" || sanitizedFolderName.includes('/')) {
+    return res.status(400).json({ message: "Érvénytelen mappanév." });
+  }
+
+  // Az S3 kulcs összeállítása. A mappáknak perjellel kell végződniük.
+  const folderKey = `${currentPath === "" ? "" : (currentPath + "/")}${sanitizedFolderName}/`;
+
+  try {
+    // Létrehozunk egy 0 bájtos objektumot, ami a mappát reprezentálja az S3-ban.
+    const command = new PutObjectCommand({
+      Bucket: BUCKET,
+      Key: folderKey,
+      Body: "", // Üres tartalom a mappához
+    });
+
+    await s3.send(command);
+    res.status(201).json({ message: "Mappa sikeresen létrehozva." });
+  } catch (error) {
+    console.error("Hiba a mappa létrehozásakor:", error);
+    res.status(500).json({ message: "Szerverhiba történt a mappa létrehozásakor." });
+  }
+};
+
 exports.getPresignedUrl = async (req, res) => {
   const { filename } = req.params
 
@@ -77,7 +110,7 @@ exports.getPresignedUrl = async (req, res) => {
       Key: filename,
     })
     const url = await getSignedUrl(s3, command, { expiresIn: 60 * 5 })
-    res.json({ url })
+    res.json(url)
   } catch (err) {
     console.log("URL előállítási hiba: ", err)
     res.status(500).json({ error: "Sikertelen URL generálás!" })
