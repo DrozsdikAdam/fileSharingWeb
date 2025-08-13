@@ -11,9 +11,9 @@ const router = express.Router();
 
 router.use(verifyToken);
 
-router.get("/", verifyToken, getNotes);
-router.patch("/:id/active", verifyToken, toggleActive)
-router.post("/", verifyToken, addNotes);
-router.delete("/:id", verifyToken, deleteNotes);
+router.get("/", getNotes);
+router.patch("/:id/active", toggleActive)
+router.post("/", addNotes);
+router.delete("/:id", deleteNotes);
 
 module.exports = router;

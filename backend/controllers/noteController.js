@@ -1,47 +1,49 @@
 let notes = [];
+import { db } from "../config/db.js"
 
-exports.getNotes = (req, res) => {
-  const userNotes = notes.filter((note) => note.user === req.user.email);
-  res.json(userNotes);
+exports.getNotes = async (req, res) => {
+  try {
+    const notes = await db.prepare("SELECT * FROM notes").all()
+    res.json(notes.results)
+  } catch (error) {
+    res.status(500).json({ error: "Hiba a jegyzetek lekérésekor" })
+  }
 };
 
-exports.toggleActive = (req, res) => {
-  const { id } = req.params
-  const note = notes.find((n) => String(n.id) === String(id));
-  if (!note) {
-    return res.status(404).json({ error: "Jegyzet nem található" });
+exports.addNotes = async (req, res) => {
+  const { content } = req.body;
+  const timeStamp = Date.now();
+  try {
+    await db.prepare("INSERT INTO notes (content, active, createdAt) VALUES (?,?,?)").bind(content, 1, timeStamp).run();
+    res.status(201).json({ content, active: 1, created_at: timeStamp })
+  } catch (error) {
+    res.status(500), json({ error: "Hiba a jegyzet létrehozásakor" })
+  }
+};
+
+exports.deleteNotes = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    await db.prepare("DELETE FROM notes WHERE id = ?").bind(id).run();
+    res.json({ message: "Jegyzet törölve" })
+  } catch (error) {
+    res.status(500).json({ error: "Hiba a jegyzetek törlésekor" })
   }
 
-  note.active = !note.active;
+};
 
-  res.status(200).json(note);
+exports.toggleActive = async (req, res) => {
+  const { id } = req.params
+  try {
+    const note = await db.prepare("SELECT * FROM notes WHERE id = ?").bind(id).first();
+    if (!note) return res.status(404).json({ error: "Jegyzet nem található" });
+    const newActive = note.active ? 0 : 1;
+    await db.prepare("UPDATE notes SET active = ? WHERE id = ?").bind(newActive, id).run();
+
+    res.json({ ...notes, active: newActive })
+
+  } catch (error) {
+
+  }
 }
-
-exports.addNotes = (req, res) => {
-  const { content } = req.body;
-  const newNote = {
-    id: Date.now().toString(),
-    content,
-    user: req.user.email,
-    createdAt: new Date().toLocaleString('hu-HU', { timeZone: 'Europe/Budapest' }),
-    active: true,
-  };
-
-  notes.push(newNote);
-  console.log(newNote)
-  res.status(201).json(newNote);
-};
-
-exports.deleteNotes = (req, res) => {
-  const { id } = req.params;
-  const initialLength = notes.length;
-
-  // A jegyzetet csak akkor töröljük, ha az ID és a felhasználó is egyezik.
-  notes = notes.filter(
-    (note) => !(note.id === id && note.user === req.user.email)
-  );
-
-  // Küldjünk választ a kliensnek.
-  if (notes.length < initialLength) res.status(204).send();
-  else res.status(404).json({ message: "A jegyzet nem található vagy nincs jogosultságod a törléshez." });
-};

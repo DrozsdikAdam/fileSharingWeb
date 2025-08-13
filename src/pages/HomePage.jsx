@@ -294,7 +294,7 @@ export const HomePage = () => {
                       >
                         <div className="flex items-center justify-center w-full p-1 hover:animate-pulse">
                           <FaFolderPlus
-                            size={!isNewFolder ? 40 : 50}
+                            size={!isNewFolder ? 40 : 65}
                             className="my-2"
                           />
                         </div>
@@ -336,7 +336,7 @@ export const HomePage = () => {
                     {file.split("/")[0] === ".." ? (
                       <div onDoubleClick={goBack} className="w-full h-full">
                         <div className="flex items-center justify-center w-full p-1 hover:animate-pulse">
-                          <FaFolder size={50} className="my-2" />
+                          <FaFolder size={65} className="my-2" />
                         </div>
                         <div
                           className="p-1 font-bold text-3xl overflow-hidden"
@@ -357,7 +357,7 @@ export const HomePage = () => {
                         className="w-full h-full"
                       >
                         <div className="flex items-center justify-center w-full p-1 hover:animate-pulse">
-                          <FaFolder size={50} className="my-2" />
+                          <FaFolder size={65} className="my-2" />
                         </div>
                         <div
                           className="p-1  overflow-hidden"
