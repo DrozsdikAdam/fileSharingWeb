@@ -1,5 +1,4 @@
-let notes = [];
-import { db } from "../config/db.js"
+const { db } = require("../config/db.js")
 
 exports.getNotes = async (req, res) => {
   try {
