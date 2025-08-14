@@ -1,11 +1,13 @@
 const express = require("express");
 const {
   getNotes,
-  addNotes,
-  deleteNotes,
+  addNote,
+  deleteNote,
   toggleActive
-} = require("../controllers/noteController");
-const verifyToken = require("../middleware/authMiddleware");
+} = require("../controllers/noteController.js");
+
+
+const verifyToken = require("../middleware/authMiddleware.js");
 
 const router = express.Router();
 
@@ -13,7 +15,7 @@ router.use(verifyToken);
 
 router.get("/", getNotes);
 router.patch("/:id/active", toggleActive)
-router.post("/", addNotes);
-router.delete("/:id", deleteNotes);
+router.post("/", addNote);
+router.delete("/:id", deleteNote);
 
 module.exports = router;

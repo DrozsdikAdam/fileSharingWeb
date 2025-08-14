@@ -19,7 +19,6 @@ export const NotesPage = () => {
       },
     });
     const data = await res.json();
-    console.log(data);
     setNotes(data);
   };
 
@@ -36,8 +35,6 @@ export const NotesPage = () => {
 
   const completedNote = async (id) => {
     const active = !notes.find((n) => n.id === id).active;
-    console.log(token);
-    console.log(active);
     const res = await fetch(`http://localhost:5000/api/notes/${id}/active`, {
       method: "PATCH",
       headers: {
@@ -71,7 +68,6 @@ export const NotesPage = () => {
 
   useEffect(() => {
     fetchNotes();
-    console.log(notes);
   }, [user]);
 
   return (

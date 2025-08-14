@@ -1,48 +1,67 @@
-const { db } = require("../config/db.js")
+require("dotenv").config();
+const { runQuery, runExecute } = require("../database.js");
 
+// GET /api/notes
 exports.getNotes = async (req, res) => {
   try {
-    const notes = await db.prepare("SELECT * FROM notes").all()
-    res.json(notes.results)
-  } catch (error) {
-    res.status(500).json({ error: "Hiba a jegyzetek lekérésekor" })
+    const notes = await runQuery("SELECT * FROM notes ORDER BY created_at DESC");
+    res.json(notes);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Hiba a jegyzetek lekérdezésekor" });
   }
 };
 
-exports.addNotes = async (req, res) => {
-  const { content } = req.body;
-  const timeStamp = Date.now();
+// POST /api/notes
+exports.addNote = async (req, res) => {
   try {
-    await db.prepare("INSERT INTO notes (content, active, createdAt) VALUES (?,?,?)").bind(content, 1, timeStamp).run();
-    res.status(201).json({ content, active: 1, created_at: timeStamp })
-  } catch (error) {
-    res.status(500), json({ error: "Hiba a jegyzet létrehozásakor" })
+    const { content } = req.body;
+    const createdAt = new Date().toISOString();
+
+    await runExecute(
+      "INSERT INTO notes (content, created_at) VALUES (?, ?)",
+      [content, createdAt]
+    );
+
+    res.json({ message: "Jegyzet hozzáadva" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Hiba a jegyzet mentésekor" });
   }
 };
 
-exports.deleteNotes = async (req, res) => {
-  const { id } = req.params;
-
+// DELETE /api/notes/:id
+exports.deleteNote = async (req, res) => {
   try {
-    await db.prepare("DELETE FROM notes WHERE id = ?").bind(id).run();
-    res.json({ message: "Jegyzet törölve" })
-  } catch (error) {
-    res.status(500).json({ error: "Hiba a jegyzetek törlésekor" })
-  }
+    const { id } = req.params;
 
+    await runExecute("DELETE FROM notes WHERE id = ?", [id]);
+
+    res.json({ message: "Jegyzet törölve" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Hiba a jegyzet törlésekor" });
+  }
 };
 
+// PUT /api/notes/:id/toggle
 exports.toggleActive = async (req, res) => {
-  const { id } = req.params
   try {
-    const note = await db.prepare("SELECT * FROM notes WHERE id = ?").bind(id).first();
-    if (!note) return res.status(404).json({ error: "Jegyzet nem található" });
-    const newActive = note.active ? 0 : 1;
-    await db.prepare("UPDATE notes SET active = ? WHERE id = ?").bind(newActive, id).run();
+    const { id } = req.params;
 
-    res.json({ ...notes, active: newActive })
+    // Aktuális állapot lekérdezése
+    const notes = await runQuery("SELECT active FROM notes WHERE id = ?", [id]);
+    if (notes.length === 0) {
+      return res.status(404).json({ error: "Jegyzet nem található" });
+    }
 
-  } catch (error) {
+    const newActive = notes[0].active ? 0 : 1;
 
+    await runExecute("UPDATE notes SET active = ? WHERE id = ?", [newActive, id]);
+
+    res.json({ message: "Jegyzet státusza frissítve", active: newActive });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Hiba a státusz frissítésekor" });
   }
-}
+};
