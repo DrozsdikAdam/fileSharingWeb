@@ -20,17 +20,20 @@ export const NewFolderComponent = (props) => {
     }
 
     try {
-      const res = await fetch("http://localhost:5000/api/files/folders", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          folderName: folderName,
-          path: currentFolder,
-        }),
-      });
+      const res = await fetch(
+        "https://filesharingbackend-rbmf.onrender.com/api/files/folders",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            folderName: folderName,
+            path: currentFolder,
+          }),
+        }
+      );
       if (!res.ok) {
         // Kezeljük a nem JSON hibaüzeneteket is
         const errorText = await res.text();

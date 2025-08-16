@@ -19,7 +19,7 @@ export const FileComponent = (props) => {
   async function handleDownload(file) {
     try {
       const res = await fetch(
-        `http://localhost:5000/api/files/download/${file}`,
+        `https://filesharingbackend-rbmf.onrender.com/api/files/download/${file}`,
         {
           method: "GET",
           headers: {
@@ -58,12 +58,15 @@ export const FileComponent = (props) => {
 
   const deleteFile = async (file) => {
     try {
-      const res = await fetch(`http://localhost:5000/api/files/${file}`, {
-        method: "DELETE",
-        headers: {
-          authorization: `Bearer ${token}`,
-        },
-      });
+      const res = await fetch(
+        `https://filesharingbackend-rbmf.onrender.com/api/files/${file}`,
+        {
+          method: "DELETE",
+          headers: {
+            authorization: `Bearer ${token}`,
+          },
+        }
+      );
       if (res.status === 401) {
         localStorage.removeItem("token");
         navigate("/login");

@@ -13,11 +13,14 @@ export const NotesPage = () => {
 
   const fetchNotes = async () => {
     if (!user) return;
-    const res = await fetch("http://localhost:5000/api/notes", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const res = await fetch(
+      "https://filesharingbackend-rbmf.onrender.com/api/notes",
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
     if (res.status === 403) {
       localStorage.removeItem("token");
       window.location.reload();
@@ -28,26 +31,32 @@ export const NotesPage = () => {
   };
 
   const handleDelete = async (index) => {
-    const res = await fetch(`http://localhost:5000/api/notes/${index}`, {
-      method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const res = await fetch(
+      `https://filesharingbackend-rbmf.onrender.com/api/notes/${index}`,
+      {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
 
     if (res.ok) setNotes(notes.filter((note) => note.id !== index));
   };
 
   const completedNote = async (id) => {
     const active = !notes.find((n) => n.id === id).active;
-    const res = await fetch(`http://localhost:5000/api/notes/${id}/active`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ active }),
-    });
+    const res = await fetch(
+      `https://filesharingbackend-rbmf.onrender.com/api/notes/${id}/active`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ active }),
+      }
+    );
 
     if (res.ok) fetchNotes();
   };
@@ -56,15 +65,18 @@ export const NotesPage = () => {
     let text = textRef.current.value.trim();
     if (text.length === 0) return;
 
-    const res = await fetch("http://localhost:5000/api/notes", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ content: text }),
-      //fontos a content elnevezés mert az van a backendben is
-    });
+    const res = await fetch(
+      "https://filesharingbackend-rbmf.onrender.com/api/notes",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ content: text }),
+        //fontos a content elnevezés mert az van a backendben is
+      }
+    );
 
     if (res.ok) fetchNotes();
     textRef.current.value = "";

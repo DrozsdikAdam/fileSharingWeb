@@ -25,13 +25,16 @@ export function UploadPage() {
         formData.append("file", file);
         formData.append("folder", selectedFolder); // A kiválasztott mappa hozzáadása
 
-        return fetch("http://localhost:5000/api/files/upload", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          body: formData,
-        })
+        return fetch(
+          "https://filesharingbackend-rbmf.onrender.com/api/files/upload",
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+            body: formData,
+          }
+        )
           .then(async (res) => {
             // A then blokkot async-ként jelöljük, hogy használhassuk az await-et
             // Először ellenőrizzük, hogy a kérés sikeres volt-e (pl. 200 OK).
@@ -77,12 +80,15 @@ export function UploadPage() {
   const fetchFiles = useCallback(async () => {
     setIsLoading(true);
     try {
-      const res = await fetch("http://localhost:5000/api/files", {
-        method: "GET",
-        headers: {
-          authorization: `Bearer ${token}`,
-        },
-      });
+      const res = await fetch(
+        "https://filesharingbackend-rbmf.onrender.com/api/files",
+        {
+          method: "GET",
+          headers: {
+            authorization: `Bearer ${token}`,
+          },
+        }
+      );
       const data = await res.json();
       setInitialFiles(data);
     } catch (error) {

@@ -16,12 +16,15 @@ export const HomePage = () => {
 
   const fetchFiles = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/files", {
-        method: "GET",
-        headers: {
-          authorization: `Bearer ${token}`,
-        },
-      });
+      const res = await fetch(
+        "https://filesharingbackend-rbmf.onrender.com/api/files",
+        {
+          method: "GET",
+          headers: {
+            authorization: `Bearer ${token}`,
+          },
+        }
+      );
       if (res.status === 401) {
         localStorage.removeItem("token");
         navigate("/login");
