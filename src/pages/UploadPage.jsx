@@ -174,7 +174,7 @@ export function UploadPage() {
           <select
             name="folder-select"
             id="folder-select"
-            className="p-2 my-2 rounded-md dark:bg-slate-700"
+            className="p-2 my-2 rounded-md border-1 hover:animate-pulse border-indigo-900 dark:border-indigo-300 bg-slate-400 dark:bg-slate-700"
             value={selectedFolder}
             onChange={(e) => setSelectedFolder(e.target.value)}
           >
