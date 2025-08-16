@@ -1,47 +1,76 @@
-let notes = [];
+require("dotenv").config();
+const { runQuery, runExecute } = require("../database.js");
 
-exports.getNotes = (req, res) => {
-  const userNotes = notes.filter((note) => note.user === req.user.email);
-  res.json(userNotes);
-};
-
-exports.toggleActive = (req, res) => {
-  const { id } = req.params
-  const note = notes.find((n) => String(n.id) === String(id));
-  if (!note) {
-    return res.status(404).json({ error: "Jegyzet nem található" });
+// GET /api/notes
+exports.getNotes = async (req, res) => {
+  try {
+    const notes = await runQuery("SELECT * FROM notes ORDER BY created_at DESC");
+    res.json(notes);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Hiba a jegyzetek lekérdezésekor" });
   }
-
-  note.active = !note.active;
-
-  res.status(200).json(note);
-}
-
-exports.addNotes = (req, res) => {
-  const { content } = req.body;
-  const newNote = {
-    id: Date.now().toString(),
-    content,
-    user: req.user.email,
-    createdAt: new Date().toLocaleString('hu-HU', { timeZone: 'Europe/Budapest' }),
-    active: true,
-  };
-
-  notes.push(newNote);
-  console.log(newNote)
-  res.status(201).json(newNote);
 };
 
-exports.deleteNotes = (req, res) => {
-  const { id } = req.params;
-  const initialLength = notes.length;
+// POST /api/notes
+exports.addNote = async (req, res) => {
+  try {
+    const { content } = req.body;
+    const now = new Date();
+    const createdAt = new Intl.DateTimeFormat("hu-HU", {
+      timeZone: "Europe/Budapest",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit"
+    }).format(now);
 
-  // A jegyzetet csak akkor töröljük, ha az ID és a felhasználó is egyezik.
-  notes = notes.filter(
-    (note) => !(note.id === id && note.user === req.user.email)
-  );
+    await runExecute(
+      "INSERT INTO notes (content, created_at) VALUES (?, ?)",
+      [content, createdAt]
+    );
 
-  // Küldjünk választ a kliensnek.
-  if (notes.length < initialLength) res.status(204).send();
-  else res.status(404).json({ message: "A jegyzet nem található vagy nincs jogosultságod a törléshez." });
+    res.json({ message: "Jegyzet hozzáadva" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Hiba a jegyzet mentésekor" });
+  }
+};
+
+// DELETE /api/notes/:id
+exports.deleteNote = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    await runExecute("DELETE FROM notes WHERE id = ?", [id]);
+
+    res.json({ message: "Jegyzet törölve" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Hiba a jegyzet törlésekor" });
+  }
+};
+
+// PUT /api/notes/:id/toggle
+exports.toggleActive = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Aktuális állapot lekérdezése
+    const notes = await runQuery("SELECT active FROM notes WHERE id = ?", [id]);
+    if (notes.length === 0) {
+      return res.status(404).json({ error: "Jegyzet nem található" });
+    }
+
+    const newActive = notes[0].active ? 0 : 1;
+
+    await runExecute("UPDATE notes SET active = ? WHERE id = ?", [newActive, id]);
+
+    res.json({ message: "Jegyzet státusza frissítve", active: newActive });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Hiba a státusz frissítésekor" });
+  }
 };

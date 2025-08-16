@@ -1,6 +1,7 @@
 {
   "type": "commonjs",
   "dependencies": {
+    "@cloudflare/d1": "^1.4.1",
     "dotenv": "^17.2.1"
   }
 }

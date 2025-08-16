@@ -1,0 +1,8 @@
+name = "notes-app"
+main = "backend/server.js"
+compatibility_date = "2025-08-13"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "notesdb"
+database_id = "113c1be6-d3fe-4538-88e3-32f117245a9d"
