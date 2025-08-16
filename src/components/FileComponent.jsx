@@ -17,7 +17,6 @@ export const FileComponent = (props) => {
   const { file, token, initialFiles, setInitialFiles, navigate } = props;
 
   async function handleDownload(file) {
-    console.log(file);
     try {
       const res = await fetch(
         `http://localhost:5000/api/files/download/${file}`,
@@ -36,12 +35,9 @@ export const FileComponent = (props) => {
       }
       if (!res.ok) throw new Error("Nem sikerült letölteni a fájlt!");
 
-      console.log(file);
-
       const url = await res.json();
 
       const fileName = file.split("/")[0].split("@&|")[1];
-      console.log(fileName);
       const link = document.createElement("a");
       link.href = url;
       link.download = fileName;
