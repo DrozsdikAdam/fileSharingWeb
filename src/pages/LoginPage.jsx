@@ -62,7 +62,7 @@ export const LoginPage = () => {
   };
 
   return (
-    <div className="text-center border-2 border-indigo-900 w-80 md:w-150 lg:w-200 dark:border-indigo-300 rounded-lg shadow-md scale-110 md:scale-120 lg:scale-130">
+    <div className="text-center border-2 border-indigo-900 w-70 md:w-100 lg:w-150 dark:border-indigo-300 rounded-lg shadow-md scale-110 md:scale-120 lg:scale-130">
       <div className="text-xl font-bold py-4 border-b-2 border-indigo-900 dark:border-indigo-300 cursor-default">
         Bejelentkezés
       </div>
