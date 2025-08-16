@@ -18,6 +18,11 @@ export const NotesPage = () => {
         Authorization: `Bearer ${token}`,
       },
     });
+    if (res.status === 403) {
+      localStorage.removeItem("token");
+      window.location.reload();
+      return;
+    }
     const data = await res.json();
     setNotes(data);
   };
@@ -122,7 +127,7 @@ export const NotesPage = () => {
                   <div className="col-span-1 text-right flex justify-around items-center">
                     <div className="flex h-full items-end">
                       <span className="text-sm text-gray-600/80 dark:text-gray-400">
-                        {note.createdAt}
+                        {note.created_at}
                       </span>
                     </div>
 

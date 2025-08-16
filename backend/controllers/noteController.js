@@ -16,7 +16,16 @@ exports.getNotes = async (req, res) => {
 exports.addNote = async (req, res) => {
   try {
     const { content } = req.body;
-    const createdAt = new Date().toISOString();
+    const now = new Date();
+    const createdAt = new Intl.DateTimeFormat("hu-HU", {
+      timeZone: "Europe/Budapest",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit"
+    }).format(now);
 
     await runExecute(
       "INSERT INTO notes (content, created_at) VALUES (?, ?)",
