@@ -25,7 +25,7 @@ export const MainLayout = () => {
       )}
 
       <div
-        className={`h-screen p-4 w-full items-start justify-center ${
+        className={`h-screen p-4 w-full items-start justify-center overflow-auto ${
           isOpen ? "hidden md:flex" : "flex"
         }`}
       >
