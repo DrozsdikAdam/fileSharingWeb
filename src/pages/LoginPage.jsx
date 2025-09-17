@@ -66,8 +66,16 @@ export const LoginPage = () => {
   };
 
   return (
-    <div className="text-center border-2 border-indigo-900 w-79 md:w-90 dark:border-indigo-300 rounded-lg shadow-md scale-110 md:scale-120 lg:scale-130">
-      <div className="text-xl font-bold py-4 border-b-2 border-indigo-900 dark:border-indigo-300 cursor-default">
+    <div
+      className={`${
+        isLoading ? "" : "dark:border-indigo-300 border-2 border-indigo-900"
+      } text-center  w-79 md:w-90  rounded-lg shadow-md scale-110 md:scale-120 lg:scale-130`}
+    >
+      <div
+        className={`${
+          isLoading ? "" : "border-b-2 border-indigo-900 dark:border-indigo-300"
+        } text-xl font-bold py-4 cursor-default`}
+      >
         Bejelentkezés
       </div>
       {isLoading ? (
