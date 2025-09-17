@@ -8,6 +8,7 @@ export const LoginPage = () => {
   const { user, login } = useUser();
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
+  const [isLoading, setIsLoading] = useState("");
 
   const emailRef = useRef();
   const passwordRef = useRef();
@@ -54,10 +55,12 @@ export const LoginPage = () => {
     } else setPasswordError("");
 
     if (isFormValid) {
+      setIsLoading(true);
       const success = await login(email, password);
       if (success) {
         navigate("/");
       }
+      setIsLoading(false);
     }
   };
 
@@ -66,80 +69,90 @@ export const LoginPage = () => {
       <div className="text-xl font-bold py-4 border-b-2 border-indigo-900 dark:border-indigo-300 cursor-default">
         Bejelentkezés
       </div>
-      <div className="px-6">
-        <form>
-          <div
-            className={`flex items-center justify-between flex-col px-3 ${
-              emailError === "" ? "py-3" : "pt-3 py-0"
-            } `}
-          >
-            <div className="flex items-center justify-between gap-8">
-              <label htmlFor="email" className="font-semibold text-lg">
-                Email:
-              </label>
-              <input
-                type="email"
-                id="email"
-                ref={emailRef}
-                title={emailError}
-                className={` px-1 outline-none border-b-2 ${
-                  emailError === ""
-                    ? "border-indigo-900 dark:border-indigo-300"
-                    : "border-red-500"
-                } `}
-              />
-            </div>
-            {emailError === "" ? null : (
-              <p className="text-red-500 w-full text-left italic text-sm opacity-80 pt-1">
-                {emailError}
-              </p>
-            )}
+      {isLoading ? (
+        <div className="w-full h-screen flex items-center justify-center">
+          <div className="flex">
+            <ImSpinner9 size={60} className="transition-all animate-spin" />
           </div>
-
-          <div
-            className={`flex items-center justify-between flex-col px-3 pt-3 ${
-              passwordError === "" ? "pb-6" : "pb-3"
-            }`}
-          >
-            <div className="flex items-center justify-between gap-8">
-              <label htmlFor="password" className="font-semibold text-lg">
-                Jelszó:
-              </label>
-              <input
-                title={passwordError}
-                ref={passwordRef}
-                type="password"
-                id="password"
-                className={` px-1 outline-none border-b-2 ${
-                  passwordError === ""
-                    ? "border-indigo-900 dark:border-indigo-300"
-                    : "border-red-500"
-                } `}
-              />
-            </div>
-
-            {passwordError === "" ? null : (
-              <p className="text-red-500 w-full italic text-left text-sm opacity-80 pt-1">
-                {passwordError}
-              </p>
-            )}
-          </div>
-        </form>
-      </div>
-      <div className="p-3 grid grid-cols-2 border-t-2 gap-3 border-indigo-900 dark:border-indigo-300">
-        <div
-          onClick={() => navigate("/")}
-          className="border-2 cursor-pointer hover:bg-red-400/50 font-semibold text-lg border-indigo-900 dark:border-indigo-300 p-2 rounded-lg"
-        >
-          Vissza
         </div>
-        <button
-          onClick={handleClick}
-          className="border-2 hover:bg-green-400/50 font-semibold text-lg border-indigo-900 dark:border-indigo-300 p-2 rounded-lg"
-        >
-          Bejelentkezés
-        </button>
-      </div>
+      ) : (
+        <>
+          <div className="px-6">
+            <form>
+              <div
+                className={`flex items-center justify-between flex-col px-3 ${
+                  emailError === "" ? "py-3" : "pt-3 py-0"
+                } `}
+              >
+                <div className="flex items-center justify-between gap-8">
+                  <label htmlFor="email" className="font-semibold text-lg">
+                    Email:
+                  </label>
+                  <input
+                    type="email"
+                    id="email"
+                    ref={emailRef}
+                    title={emailError}
+                    className={` px-1 outline-none border-b-2 ${
+                      emailError === ""
+                        ? "border-indigo-900 dark:border-indigo-300"
+                        : "border-red-500"
+                    } `}
+                  />
+                </div>
+                {emailError === "" ? null : (
+                  <p className="text-red-500 w-full text-left italic text-sm opacity-80 pt-1">
+                    {emailError}
+                  </p>
+                )}
+              </div>
+
+              <div
+                className={`flex items-center justify-between flex-col px-3 pt-3 ${
+                  passwordError === "" ? "pb-6" : "pb-3"
+                }`}
+              >
+                <div className="flex items-center justify-between gap-8">
+                  <label htmlFor="password" className="font-semibold text-lg">
+                    Jelszó:
+                  </label>
+                  <input
+                    title={passwordError}
+                    ref={passwordRef}
+                    type="password"
+                    id="password"
+                    className={` px-1 outline-none border-b-2 ${
+                      passwordError === ""
+                        ? "border-indigo-900 dark:border-indigo-300"
+                        : "border-red-500"
+                    } `}
+                  />
+                </div>
+
+                {passwordError === "" ? null : (
+                  <p className="text-red-500 w-full italic text-left text-sm opacity-80 pt-1">
+                    {passwordError}
+                  </p>
+                )}
+              </div>
+            </form>
+          </div>
+          <div className="p-3 grid grid-cols-2 border-t-2 gap-3 border-indigo-900 dark:border-indigo-300">
+            <div
+              onClick={() => navigate("/")}
+              className="border-2 cursor-pointer hover:bg-red-400/50 font-semibold text-lg border-indigo-900 dark:border-indigo-300 p-2 rounded-lg"
+            >
+              Vissza
+            </div>
+            <button
+              onClick={handleClick}
+              className="border-2 hover:bg-green-400/50 font-semibold text-lg border-indigo-900 dark:border-indigo-300 p-2 rounded-lg"
+            >
+              Bejelentkezés
+            </button>
+          </div>
+        </>
+      )}
     </div>
   );
 };

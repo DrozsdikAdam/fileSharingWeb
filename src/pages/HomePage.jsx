@@ -25,7 +25,7 @@ export const HomePage = () => {
           },
         }
       );
-      if (res.status === 401) {
+      if (res.status === 401 || res.status === 403) {
         localStorage.removeItem("token");
         navigate("/login");
         // Optionally show a toast message about session expiration
