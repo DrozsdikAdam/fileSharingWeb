@@ -88,12 +88,12 @@ export const NotesPage = () => {
   }, [user]);
 
   return (
-    <div>
+    <div className="w-full md:w-150 lg:w-230">
       <h1 className="text-xl md:text-2xl lg:text-3xl font-semibold pb-4 text-center">
         {isOpen ? "Új jegyzet" : "Jegyzetek"}
       </h1>
 
-      <div className="w-90 md:w-150 lg:w-230">
+      <div className="w-full md:w-150 lg:w-230">
         {isOpen ? (
           <div className="flex justify-center flex-col items-center">
             <textarea
@@ -125,18 +125,18 @@ export const NotesPage = () => {
               notes.map((note, index) => (
                 <li
                   key={index}
-                  className="grid mb-2 grid-cols-4 lg:grid-cols-5 gap-1 hover:bg-gray-500/10 dark:hover:bg-gray-600/50 p-2 w-full border-b-2 border-l-2 border-indigo-900 dark:border-indigo-300 shadow-lg dark:hover:shadow-indigo-300/30 hover:shadow-indigo-900/30"
+                  className="md:grid mb-2 flex rounded-lg flex-col justify-between items-center md:grid-cols-4 lg:grid-cols-5 gap-1 hover:bg-gray-500/10 dark:hover:bg-gray-600/50 p-2 w-full border-b-2 border-l-2 border-indigo-900 dark:border-indigo-300 shadow-lg dark:hover:shadow-indigo-300/30 hover:shadow-indigo-900/30"
                 >
                   <div
                     onClick={() => completedNote(note.id)}
-                    className={`lg:col-span-4 col-span-3 ${
+                    className={`lg:col-span-4 md:col-span-3 overflow-auto ${
                       note.active ? null : "line-through"
                     }`}
                   >
                     {note.content}
                   </div>
 
-                  <div className="col-span-1 text-right flex justify-around items-center">
+                  <div className="md:col-span-1 text-right flex justify-around items-center">
                     <div className="flex h-full items-end">
                       <span className="text-sm text-gray-600/80 dark:text-gray-400">
                         {note.created_at}
@@ -154,7 +154,7 @@ export const NotesPage = () => {
               ))}
             <li
               onClick={() => setIsOpen(!isOpen)}
-              className="flex items-center shadow-lg justify-center hover:bg-gray-500/10 dark:hover:bg-gray-600 hover:scale-101 font-semibold mt-4 p-2 w-full border-2 rounded-lg  border-indigo-900 dark:border-indigo-300"
+              className="flex items-center shadow-lg justify-center hover:bg-gray-500/10 dark:hover:bg-gray-600 hover:scale-101 font-semibold mt-4 p-2  w-full border-2 rounded-lg  border-indigo-900 dark:border-indigo-300"
             >
               <BsPlusCircle size={25} />
             </li>
