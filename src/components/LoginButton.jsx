@@ -1,12 +1,15 @@
 import { Link } from "react-router-dom";
 import { useUser } from "../contexts/UserContext";
+import { useNavigate } from "react-router-dom";
 
 export const LoginButton = (props) => {
   const { user, logout } = useUser();
+  const navigate = useNavigate();
   return user ? (
     <button
       onClick={() => {
         logout();
+        navigate("/login");
         props.setIsOpen(false);
       }}
       className="w-full text-center text-xl py-2 rounded-md hover:scale-105 mb-4 border-2 dark:hover:border-indigo-300 hover:border-indigo-700 transition-all ease-in-out duration-100"
